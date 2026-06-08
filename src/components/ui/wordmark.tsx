@@ -11,7 +11,7 @@ export function Wordmark({ size = 18, className }: WordmarkProps) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <CairnMark size={size + 8} />
-      <span className="font-display font-bold tracking-[0.02em] text-fg-1">
+      <span className="font-display font-bold tracking-caption text-fg-1">
         CAIRN
       </span>
     </span>
