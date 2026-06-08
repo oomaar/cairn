@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Avatar, Icon, Text } from "@/components/ui";
+import { Avatar, Icon, Text, buttonVariants } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { ROLES, persistDemoRole, type RoleKey } from "@/features/session";
 import { getPerson, type Tone } from "@/universe";
 
@@ -58,49 +59,55 @@ export function DemoEntry() {
           {ROLES.map((role) => {
             const person = getPerson(role.personId);
             return (
-              <button
+              <article
                 key={role.key}
-                type="button"
-                onClick={() => enter(role.key)}
-                className="group flex flex-col rounded-xl border border-border bg-surface p-6 text-left transition-colors hover:border-border-strong"
+                className="group flex flex-col rounded-xl border border-border bg-surface p-6"
               >
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    initials={role.initials}
-                    size="lg"
-                    tone={person ? AVATAR_TONE(person.tone) : "quiet"}
-                  />
-                  <div className="min-w-0">
-                    <Text as="p" variant="title" className="text-lg">
-                      {role.label}
-                    </Text>
-                    <Text
-                      variant="caption"
-                      as="p"
-                      tone="tertiary"
-                      className="font-mono"
-                    >
-                      {person?.name}
-                    </Text>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      initials={role.initials}
+                      size="lg"
+                      tone={person ? AVATAR_TONE(person.tone) : "quiet"}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <Text as="p" variant="title" className="truncate text-lg">
+                        {role.label}
+                      </Text>
+                      <Text
+                        variant="caption"
+                        as="p"
+                        tone="tertiary"
+                        className="truncate font-mono"
+                      >
+                        {person?.name}
+                      </Text>
+                    </div>
                   </div>
-                  <span className="ml-auto rounded-pill bg-accent-tint px-2.5 py-1 text-2xs font-semibold uppercase tracking-[0.04em] text-accent-bright">
-                    {ROLE_TAG[role.key]}
-                  </span>
+
+                  <div className="mt-4">
+                    <span className="inline-flex whitespace-nowrap rounded-pill bg-accent-tint px-2.5 py-1 text-2xs font-semibold uppercase tracking-[0.04em] text-accent-bright">
+                      {ROLE_TAG[role.key]}
+                    </span>
+                  </div>
+
+                  <Text variant="body-sm" tone="secondary" className="mt-3">
+                    {ROLE_BLURB[role.key]}
+                  </Text>
                 </div>
 
-                <Text
-                  variant="body-sm"
-                  tone="secondary"
-                  className="mt-4 flex-1"
+                <button
+                  type="button"
+                  onClick={() => enter(role.key)}
+                  className={cn(
+                    buttonVariants({ variant: "secondary", size: "md" }),
+                    "mt-6 w-full justify-between text-fg-2 transition-colors group-hover:border-accent-line group-hover:bg-accent-tint group-hover:text-accent-bright",
+                  )}
                 >
-                  {ROLE_BLURB[role.key]}
-                </Text>
-
-                <span className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-fg-2 transition-colors group-hover:text-fg-1">
                   Enter as {role.label}
-                  <Icon name="arrowR" size={14} />
-                </span>
-              </button>
+                  <Icon name="arrowR" size={16} />
+                </button>
+              </article>
             );
           })}
         </div>
