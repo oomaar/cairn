@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -7,26 +8,42 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { DEFAULT_WORLD, WORLDS, type WorldKey } from "@/features/theme";
+import {
+  DEFAULT_WORLD,
+  WORLD_BY_KEY,
+  WORLDS,
+  type WorldKey,
+} from "@/features/theme";
 import type { Id } from "@/universe";
 
 type ModuleByWorld = Record<WorldKey, string>;
 
-const INITIAL_MODULES: ModuleByWorld = Object.fromEntries(
+const DEFAULT_MODULES: ModuleByWorld = Object.fromEntries(
   WORLDS.map((world) => [world.key, world.defaultModule]),
 ) as ModuleByWorld;
 
 /** The headline expedition the app opens focused on. */
 const DEFAULT_FOCUS: Id = "tdp";
 
+function isWorldKey(value: string | undefined): value is WorldKey {
+  return value !== undefined && value in WORLD_BY_KEY;
+}
+
+/** Derive the active world + module from the current pathname (/world/module),
+ *  falling back to sensible defaults for unknown or partial paths. */
+function parsePath(pathname: string): { world: WorldKey; module: string } {
+  const [worldSeg, moduleSeg] = pathname.split("/").filter(Boolean);
+  const world = isWorldKey(worldSeg) ? worldSeg : DEFAULT_WORLD;
+  const def = WORLD_BY_KEY[world];
+  const moduleKey = def.modules.some((m) => m.key === moduleSeg)
+    ? (moduleSeg as string)
+    : def.defaultModule;
+  return { world, module: moduleKey };
+}
+
 interface NavigationValue {
-  /** Active world. */
   world: WorldKey;
-  /** Active module within the active world. */
   module: string;
-  /** Last-open module per world (preserved when switching worlds). */
-  modules: ModuleByWorld;
-  /** Expedition the workspace is currently focused on. */
   focusedExpeditionId: Id;
   setWorld: (world: WorldKey) => void;
   setModule: (module: string) => void;
@@ -38,34 +55,37 @@ interface NavigationValue {
 const NavigationContext = createContext<NavigationValue | null>(null);
 
 /**
- * Owns cross-cutting navigation state — active world, per-world module, and
- * the focused expedition. Lives in one place so the spine, the canvas, and the
- * command palette all drive and reflect the same navigation. (When URL routing
- * lands, this provider becomes the place that syncs to the router.)
+ * URL-driven navigation. The active world + module come from the route, and
+ * the setters push routes — so the spine, command palette, module tabs, and
+ * the browser's back/forward all stay in sync with one source of truth: the
+ * URL. Per-world "last open module" is remembered so switching worlds returns
+ * you to where you were.
  */
 export function NavigationProvider({ children }: { children: ReactNode }) {
-  const [world, setWorld] = useState<WorldKey>(DEFAULT_WORLD);
-  const [modules, setModules] = useState<ModuleByWorld>(INITIAL_MODULES);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { world, module } = parsePath(pathname);
+
+  const [lastModule, setLastModule] = useState<ModuleByWorld>(DEFAULT_MODULES);
   const [focusedExpeditionId, setFocusedExpeditionId] =
     useState<Id>(DEFAULT_FOCUS);
 
-  const value = useMemo<NavigationValue>(
-    () => ({
+  const value = useMemo<NavigationValue>(() => {
+    const navigate = (nextWorld: WorldKey, nextModule?: string) => {
+      const target = nextModule ?? lastModule[nextWorld];
+      setLastModule((prev) => ({ ...prev, [nextWorld]: target }));
+      router.push(`/${nextWorld}/${target}`);
+    };
+    return {
       world,
-      module: modules[world],
-      modules,
+      module,
       focusedExpeditionId,
-      setWorld,
-      setModule: (module) =>
-        setModules((prev) => ({ ...prev, [world]: module })),
-      goTo: (nextWorld, module) => {
-        setWorld(nextWorld);
-        if (module) setModules((prev) => ({ ...prev, [nextWorld]: module }));
-      },
+      setWorld: (nextWorld) => navigate(nextWorld),
+      setModule: (nextModule) => navigate(world, nextModule),
+      goTo: navigate,
       focusExpedition: setFocusedExpeditionId,
-    }),
-    [world, modules, focusedExpeditionId],
-  );
+    };
+  }, [world, module, focusedExpeditionId, lastModule, router]);
 
   return <NavigationContext value={value}>{children}</NavigationContext>;
 }
