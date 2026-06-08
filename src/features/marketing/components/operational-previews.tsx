@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { WORLD_BY_KEY, type WorldKey } from "@/features/theme";
-import { PlanPreview } from "./plan-preview";
 import { RecordPreview } from "./record-preview";
 
 interface PreviewRowProps {
@@ -47,37 +46,28 @@ function PreviewRow({
   );
 }
 
-/** "See it in operation" — real, data-backed previews of each world. */
+/** Record showcase — the daybook, drawn from a live expedition. */
 export function OperationalPreviews() {
   return (
     <section className="border-b border-border bg-inset">
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         <Text variant="eyebrow" as="p" tone="tertiary">
-          In the field
+          The record
         </Text>
         <Text as="h2" variant="h1" className="mt-3 max-w-2xl">
-          See it in operation.
+          Nothing is lost.
         </Text>
         <Text variant="body" tone="secondary" className="mt-4 max-w-xl">
-          Every preview below is drawn from a live expedition in the system —
-          the Torres del Paine Circuit, on the move right now.
+          Everything the field reports — movement, weather, incidents and comms
+          — folds into one daybook, shown here from a live expedition.
         </Text>
 
-        <div className="mt-14 flex flex-col gap-16">
-          <PreviewRow
-            worldKey="plan"
-            headline="Plot the line, read the terrain."
-            blurb="A route becomes elevation, checkpoints and timing you can brief from — hazards flagged where the mountain demands respect."
-            reverse={false}
-          >
-            <PlanPreview />
-          </PreviewRow>
-
+        <div className="mt-14">
           <PreviewRow
             worldKey="record"
             headline="Keep a faithful record."
             blurb="Movement, weather, incidents and comms fold into a daybook automatically — a complete account you can hand to anyone."
-            reverse
+            reverse={false}
           >
             <RecordPreview />
           </PreviewRow>
