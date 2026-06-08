@@ -1,26 +1,432 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   CAIRN — Tailwind v4 theme tokens
+   --------------------------------------------------------------------------
+   Ported from the approved visual system (travel/cairn.css). Dark-mode-first
+   warm-charcoal field surfaces are the DEFAULT (:root). A light warm-paper
+   theme is opt-in via the `.theme-paper` class (public site).
+
+   Raw values live as plain custom properties so they can switch at runtime;
+   `@theme inline` maps them onto Tailwind's color/shadow namespaces so the
+   generated utilities (bg-surface, text-fg-2, border-strong, shadow-card, …)
+   track the active theme. Static design tokens (type, radius, easing) live in
+   the non-inline `@theme` block.
+   ========================================================================== */
+
+/* ======================================================================
+   DARK APP THEME (default) — warm charcoal field surfaces
+   ====================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces */
+  --bg-ink: #100d08; /* deepest full-bleed */
+  --bg-app: #15120c; /* app background */
+  --bg-surface: #1c1810; /* cards */
+  --bg-raised: #241f16; /* raised / hover */
+  --bg-inset: #110e08; /* wells, map fields, code */
+  --bg-elev: #2b2519; /* menus, popovers */
+
+  /* Borders */
+  --border-base: #322b1e; /* hairline */
+  --border-strong: #463d2b;
+  --border-soft: #261f15;
+
+  /* Foreground */
+  --fg-1: #f2eada; /* primary parchment text */
+  --fg-2: #b6ab93; /* secondary */
+  --fg-3: #897e68; /* tertiary / captions */
+  --fg-4: #635a48; /* meta */
+  --fg-disabled: #4a4334;
+  --fg-on-accent: #1a1407;
+
+  /* Warm amber / sandstone — THE accent. A pointer, not a fill. */
+  --amber: #d89a4c;
+  --amber-bright: #ecb463;
+  --amber-deep: #b97e33;
+  --amber-tint: rgba(216, 154, 76, 0.14);
+  --amber-line: rgba(216, 154, 76, 0.34);
+
+  /* Muted olive — "nominal / on-route / healthy" */
+  --olive: #97a35c;
+  --olive-bright: #b2be74;
+  --olive-tint: rgba(151, 163, 92, 0.15);
+  --olive-line: rgba(151, 163, 92, 0.32);
+
+  /* Slate — cool counterpoint: weather, water, info */
+  --slate: #6e8790;
+  --slate-bright: #8ea7af;
+  --slate-tint: rgba(110, 135, 144, 0.16);
+  --slate-line: rgba(110, 135, 144, 0.34);
+
+  /* Sandstone — warm light surface accent */
+  --sandstone: #c8a87c;
+
+  /* Accent — the active pointer color. Defaults to amber; re-skinned per
+     world (.world-plan / .world-operate / .world-record). Using this token
+     instead of `amber` directly lets a component stay world-agnostic. */
+  --accent: var(--amber);
+  --accent-bright: var(--amber-bright);
+  --accent-tint: var(--amber-tint);
+  --accent-line: var(--amber-line);
+
+  /* Spine — the constant neutral shell that frames every world. */
+  --spine-bg: #0a0d0c;
+  --spine-edge: #1e2422;
+  --spine-ink: #c7d0ca;
+  --spine-ink-2: #7e8b83;
+  --spine-ink-3: #515c56;
+  --spine-plan: #e9c46a;
+  --spine-operate: #9fb89a;
+  --spine-record: #c58a55;
+
+  /* Semantic */
+  --ok: #8fa85e;
+  --ok-tint: rgba(143, 168, 94, 0.15);
+  --warn: #e0a23a;
+  --warn-tint: rgba(224, 162, 58, 0.15);
+  --warn-line: rgba(224, 162, 58, 0.34);
+  --danger: #d2513c;
+  --danger-bright: #ee6b53;
+  --danger-tint: rgba(210, 81, 60, 0.16);
+  --danger-line: rgba(210, 81, 60, 0.4);
+  --info: var(--slate);
+  --info-tint: var(--slate-tint);
+
+  /* Shadows — deeper for dark surfaces, warm-neutral, never colored */
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 2px 4px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 8px 22px -8px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 28px 56px -18px rgba(0, 0, 0, 0.66), 0 6px 14px rgba(0, 0, 0, 0.34);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.02) inset,
+    0 10px 26px -14px rgba(0, 0, 0, 0.6);
 }
 
+/* ======================================================================
+   LIGHT WARM-PAPER THEME — public site (opt-in via .theme-paper)
+   ====================================================================== */
+.theme-paper {
+  --bg-ink: #1b160c;
+  --bg-app: #f1e9d9; /* warm paper */
+  --bg-surface: #fbf6ec; /* cards */
+  --bg-raised: #f6efe0;
+  --bg-inset: #e9e0cc;
+  --bg-elev: #ffffff;
+
+  --border-base: #ddd2bb;
+  --border-strong: #c9bc9f;
+  --border-soft: #e7decb;
+
+  --fg-1: #211b11;
+  --fg-2: #5c5341;
+  --fg-3: #837960;
+  --fg-4: #9c9276;
+  --fg-disabled: #bcb39c;
+  --fg-on-accent: #1a1407;
+
+  --amber-tint: rgba(185, 126, 51, 0.12);
+  --amber-line: rgba(185, 126, 51, 0.4);
+  --olive-tint: rgba(108, 120, 60, 0.13);
+  --slate-tint: rgba(80, 104, 114, 0.12);
+
+  --shadow-xs: 0 1px 1px rgba(40, 32, 16, 0.05);
+  --shadow-sm: 0 1px 2px rgba(40, 32, 16, 0.06), 0 2px 4px rgba(40, 32, 16, 0.05);
+  --shadow-md: 0 10px 26px -10px rgba(40, 32, 16, 0.16),
+    0 2px 6px rgba(40, 32, 16, 0.06);
+  --shadow-lg: 0 30px 60px -20px rgba(40, 32, 16, 0.22),
+    0 6px 14px rgba(40, 32, 16, 0.08);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 12px 26px -16px rgba(40, 32, 16, 0.14);
+}
+
+/* ======================================================================
+   WORLD PALETTES — each world re-skins the canvas in its own visual
+   language (source of truth: travel/palettes.jsx). Wrapping a region in
+   `.world-plan` / `.world-operate` / `.world-record` re-points the shared
+   surface / foreground / border / accent tokens, so the same utilities
+   (bg-app, bg-surface, text-fg-2, border-border, bg-accent, …) restyle
+   automatically. World-only colors (route, water, contour, …) are exposed
+   as raw vars for use via arbitrary utilities, e.g. bg-[var(--plan-route)].
+   Roles a palette does not define fall back to the nearest defined token.
+   ====================================================================== */
+
+/* PLAN — night navigation chart */
+.world-plan {
+  --bg-app: #0b1413;
+  --bg-surface: #0f1b19;
+  --bg-raised: #13211e;
+  --bg-inset: #0b1413;
+  --bg-elev: #13211e;
+
+  --border-base: #27332e;
+  --border-strong: #34433d;
+  --border-soft: #1e2a26;
+
+  --fg-1: #dce6dc;
+  --fg-2: #9db0a6;
+  --fg-3: #6b7e76;
+  --fg-4: #51615a;
+
+  --accent: #e9c46a;
+  --accent-bright: #f2d58a;
+  --accent-tint: rgba(233, 196, 106, 0.14);
+  --accent-line: rgba(233, 196, 106, 0.34);
+
+  /* Plan-only */
+  --plan-water: #2e5b5b;
+  --plan-water-light: #3f7e76;
+  --plan-route: #e9c46a;
+  --plan-contour: rgba(126, 142, 110, 0.34);
+  --plan-contour-index: rgba(160, 176, 138, 0.62);
+  --plan-signal: #e8632a;
+  --plan-signal-fill: rgba(232, 99, 42, 0.13);
+  --plan-sage: #8fa07e;
+}
+
+/* OPERATE — calibrated instrument graphite */
+.world-operate {
+  --bg-app: #0d1110;
+  --bg-surface: #141a18;
+  --bg-raised: #101614;
+  --bg-inset: #0d1110;
+  --bg-elev: #141a18;
+
+  --border-base: #2a322d;
+  --border-strong: #3a443d;
+  --border-soft: #20271f;
+
+  --fg-1: #cad3cd;
+  --fg-2: #8a968e;
+  --fg-3: #5b665f;
+  --fg-4: #4a544d;
+
+  --accent: #9fb89a;
+  --accent-bright: #b6cdb1;
+  --accent-tint: rgba(159, 184, 154, 0.15);
+  --accent-line: rgba(159, 184, 154, 0.34);
+
+  /* Operate-only */
+  --operate-etch: rgba(255, 255, 255, 0.05);
+  --operate-sage: #9fb89a;
+  --operate-sage-dim: #6e8470;
+  --operate-slate: #7c8c92;
+  --operate-amber: #d9952f;
+  --operate-red: #da4b32;
+}
+
+/* RECORD — precise survey notebook (light) */
+.world-record {
+  --bg-app: #e8e4d6;
+  --bg-surface: #f1eee4;
+  --bg-raised: #ece8da;
+  --bg-inset: #ddd8c7;
+  --bg-elev: #f7f5ec;
+
+  --border-base: #d8d2bf;
+  --border-strong: #c3bca6;
+  --border-soft: #e3ddcd;
+
+  --fg-1: #23241d;
+  --fg-2: #54564a;
+  --fg-3: #7e8069;
+  --fg-4: #969781;
+
+  --accent: #9b3b2e;
+  --accent-bright: #b8493a;
+  --accent-tint: rgba(155, 59, 46, 0.1);
+  --accent-line: rgba(155, 59, 46, 0.34);
+
+  /* Record-only */
+  --record-rule: #aeb9be;
+  --record-rule-faint: #c3cacb;
+  --record-margin: #bc5c49;
+  --record-brown: #5c4a2d;
+  --record-blue: #3c5a6e;
+  --record-oxblood: #9b3b2e;
+  --record-olive: #6e7544;
+
+  /* Light surfaces want the paper shadow ramp */
+  --shadow-xs: 0 1px 1px rgba(40, 32, 16, 0.05);
+  --shadow-sm: 0 1px 2px rgba(40, 32, 16, 0.06), 0 2px 4px rgba(40, 32, 16, 0.05);
+  --shadow-md: 0 10px 26px -10px rgba(40, 32, 16, 0.16),
+    0 2px 6px rgba(40, 32, 16, 0.06);
+  --shadow-lg: 0 30px 60px -20px rgba(40, 32, 16, 0.22),
+    0 6px 14px rgba(40, 32, 16, 0.08);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 12px 26px -16px rgba(40, 32, 16, 0.14);
+}
+
+/* ======================================================================
+   Runtime-switchable tokens → Tailwind color/shadow namespaces
+   ====================================================================== */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Surfaces */
+  --color-ink: var(--bg-ink);
+  --color-app: var(--bg-app);
+  --color-surface: var(--bg-surface);
+  --color-raised: var(--bg-raised);
+  --color-inset: var(--bg-inset);
+  --color-elev: var(--bg-elev);
+
+  /* Borders */
+  --color-border: var(--border-base);
+  --color-border-strong: var(--border-strong);
+  --color-border-soft: var(--border-soft);
+
+  /* Foreground */
+  --color-fg-1: var(--fg-1);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-fg-4: var(--fg-4);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-fg-on-accent: var(--fg-on-accent);
+
+  /* Accent — amber */
+  --color-amber: var(--amber);
+  --color-amber-bright: var(--amber-bright);
+  --color-amber-deep: var(--amber-deep);
+  --color-amber-tint: var(--amber-tint);
+  --color-amber-line: var(--amber-line);
+
+  /* Olive */
+  --color-olive: var(--olive);
+  --color-olive-bright: var(--olive-bright);
+  --color-olive-tint: var(--olive-tint);
+  --color-olive-line: var(--olive-line);
+
+  /* Slate */
+  --color-slate: var(--slate);
+  --color-slate-bright: var(--slate-bright);
+  --color-slate-tint: var(--slate-tint);
+  --color-slate-line: var(--slate-line);
+
+  /* Sandstone */
+  --color-sandstone: var(--sandstone);
+
+  /* Accent (world-aware) */
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-line: var(--accent-line);
+
+  /* Spine */
+  --color-spine: var(--spine-bg);
+  --color-spine-edge: var(--spine-edge);
+  --color-spine-ink: var(--spine-ink);
+  --color-spine-ink-2: var(--spine-ink-2);
+  --color-spine-ink-3: var(--spine-ink-3);
+
+  /* Semantic */
+  --color-ok: var(--ok);
+  --color-ok-tint: var(--ok-tint);
+  --color-warn: var(--warn);
+  --color-warn-tint: var(--warn-tint);
+  --color-warn-line: var(--warn-line);
+  --color-danger: var(--danger);
+  --color-danger-bright: var(--danger-bright);
+  --color-danger-tint: var(--danger-tint);
+  --color-danger-line: var(--danger-line);
+  --color-info: var(--info);
+  --color-info-tint: var(--info-tint);
+
+  /* Shadows */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-card: var(--shadow-card);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ======================================================================
+   Static design tokens — type, radius, easing, motion
+   ====================================================================== */
+@theme {
+  /* Type families (variables provided by next/font in layout.tsx) */
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  /* Type scale */
+  --text-3xs: 10px;
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+  --text-5xl: 64px;
+  --text-6xl: 88px;
+  --text-display: 120px;
+
+  /* Line heights */
+  --leading-tight: 1.05;
+  --leading-snug: 1.18;
+  --leading-body: 1.45;
+  --leading-relaxed: 1.6;
+
+  /* Letter spacing (tracking) */
+  --tracking-display: -0.02em;
+  --tracking-heading: -0.01em;
+  --tracking-body: 0em;
+  --tracking-caption: 0.02em;
+  --tracking-eyebrow: 0.14em;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+
+  /* Easing */
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-emphatic: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Motion — durations */
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 320ms;
+  --duration-stately: 560ms;
+
+  /* Live pulse — the world feels active */
+  --animate-pulse-live: cairn-pulse 1.8s var(--ease-standard) infinite;
+}
+
+@keyframes cairn-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(210, 81, 60, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(210, 81, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(210, 81, 60, 0);
   }
 }
 
+/* ======================================================================
+   Base
+   ====================================================================== */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-app);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-live {
+    animation: none;
+  }
 }
