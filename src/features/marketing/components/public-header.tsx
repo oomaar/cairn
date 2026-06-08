@@ -25,7 +25,7 @@ export function PublicHeader() {
         </nav>
 
         <Link
-          href="/plan/route"
+          href="#enter"
           className={cn(
             buttonVariants({ variant: "primary", size: "md" }),
             "ml-auto md:ml-0",

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Icon, Text, type IconName } from "@/components/ui";
+import { Icon, Text, buttonVariants, type IconName } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { WORLDS } from "@/features/theme";
 import { WORLD_ACCENT } from "../marketing.constants";
@@ -62,9 +62,14 @@ export function WorldsShowcase() {
                   ))}
                 </ul>
 
-                <span className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-fg-2 transition-colors group-hover:text-fg-1">
+                <span
+                  className={cn(
+                    buttonVariants({ variant: "secondary", size: "md" }),
+                    "mt-auto w-full justify-between text-fg-2 transition-colors group-hover:border-accent-line group-hover:bg-accent-tint group-hover:text-accent-bright",
+                  )}
+                >
                   Open {world.label}
-                  <Icon name="arrowR" size={14} />
+                  <Icon name="arrowR" size={16} />
                 </span>
               </Link>
             );

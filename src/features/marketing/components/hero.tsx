@@ -32,7 +32,7 @@ export function Hero() {
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link
-              href="/plan/route"
+              href="#enter"
               className={cn(
                 buttonVariants({ variant: "primary", size: "lg" }),
                 "gap-2.5",
