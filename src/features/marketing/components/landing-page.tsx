@@ -1,6 +1,7 @@
 import { PublicHeader } from "./public-header";
 import { Hero } from "./hero";
 import { LiveOperation } from "./live-operation";
+import { RoutePlanning } from "./route-planning";
 import { Mission } from "./mission";
 import { WorldsShowcase } from "./worlds-showcase";
 import { OperationalPreviews } from "./operational-previews";
@@ -20,6 +21,7 @@ export function LandingPage() {
       <main className="flex-1">
         <Hero />
         <LiveOperation />
+        <RoutePlanning />
         <Mission />
         <WorldsShowcase />
         <OperationalPreviews />
