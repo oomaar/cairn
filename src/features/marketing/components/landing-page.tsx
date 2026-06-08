@@ -2,9 +2,9 @@ import { PublicHeader } from "./public-header";
 import { Hero } from "./hero";
 import { LiveOperation } from "./live-operation";
 import { RoutePlanning } from "./route-planning";
+import { FieldLog } from "./field-log";
 import { Mission } from "./mission";
 import { WorldsShowcase } from "./worlds-showcase";
-import { OperationalPreviews } from "./operational-previews";
 import { LiveUniverse } from "./live-universe";
 import { DemoEntry } from "./demo-entry";
 import { PublicFooter } from "./public-footer";
@@ -22,9 +22,9 @@ export function LandingPage() {
         <Hero />
         <LiveOperation />
         <RoutePlanning />
+        <FieldLog />
         <Mission />
         <WorldsShowcase />
-        <OperationalPreviews />
         <LiveUniverse />
         <DemoEntry />
       </main>
