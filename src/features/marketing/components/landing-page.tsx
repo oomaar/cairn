@@ -4,7 +4,7 @@ import { Mission } from "./mission";
 import { WorldsShowcase } from "./worlds-showcase";
 import { OperationalPreviews } from "./operational-previews";
 import { LiveUniverse } from "./live-universe";
-import { ClosingCta } from "./closing-cta";
+import { DemoEntry } from "./demo-entry";
 import { PublicFooter } from "./public-footer";
 
 /**
@@ -22,7 +22,7 @@ export function LandingPage() {
         <WorldsShowcase />
         <OperationalPreviews />
         <LiveUniverse />
-        <ClosingCta />
+        <DemoEntry />
       </main>
       <PublicFooter />
     </div>

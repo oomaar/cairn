@@ -7,3 +7,4 @@ export {
   useRole,
   useCan,
 } from "./session-context";
+export { persistDemoRole, clearDemoRole, DEMO_ROLE_COOKIE } from "./fake-auth";
