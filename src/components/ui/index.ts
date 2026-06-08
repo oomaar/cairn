@@ -5,3 +5,5 @@ export type { IconName } from "./icon";
 export { CairnMark } from "./cairn-mark";
 export { Wordmark } from "./wordmark";
 export { Avatar } from "./avatar";
+export { Button, buttonVariants } from "./button";
+export type { ButtonProps } from "./button";
