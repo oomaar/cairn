@@ -9,6 +9,7 @@ import {
 } from "react";
 import { getPerson, type Person } from "@/universe";
 import { roleCan, type Capability } from "./capabilities";
+import { persistDemoRole } from "./fake-auth";
 import { DEFAULT_ROLE, ROLE_BY_KEY } from "./role.constants";
 import type { Role, RoleKey } from "./role.types";
 
@@ -35,7 +36,7 @@ export function SessionProvider({
   children: ReactNode;
   initialRole?: RoleKey;
 }) {
-  const [role, setRole] = useState<RoleKey>(initialRole);
+  const [role, setRoleState] = useState<RoleKey>(initialRole);
 
   const value = useMemo<SessionValue>(() => {
     const activeRole = ROLE_BY_KEY[role];
@@ -43,7 +44,12 @@ export function SessionProvider({
       role,
       activeRole,
       currentUser: getPerson(activeRole.personId),
-      setRole,
+      // Switching role also persists the demo identity, so the spine switcher
+      // and a reload stay in sync with the chosen vantage.
+      setRole: (next) => {
+        setRoleState(next);
+        persistDemoRole(next);
+      },
       can: (capability) => roleCan(role, capability),
     };
   }, [role]);
