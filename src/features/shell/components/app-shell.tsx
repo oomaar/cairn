@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import {
-  DEFAULT_WORLD,
-  WORLD_BY_KEY,
   WORLDS,
+  WORLD_BY_KEY,
+  DEFAULT_WORLD,
   type WorldKey,
 } from "@/features/theme";
-import { DEFAULT_ROLE, type RoleKey } from "../roles";
+import { SessionProvider, useSession } from "@/features/session";
 import { Spine } from "./spine";
 import { WorldCanvas } from "./world-canvas";
 
@@ -20,14 +20,13 @@ const INITIAL_MODULES: ModuleByWorld = Object.fromEntries(
 ) as ModuleByWorld;
 
 /**
- * AppShell — the persistent application frame. Owns the cross-cutting
- * navigation state (active world, role, per-world module) and composes the
- * constant spine with the active world's canvas. Worlds take over the canvas
- * in their own visual language.
+ * The shell frame — the persistent layout. Owns world/module navigation state
+ * and reads the active role from the session, composing the constant spine
+ * with the active world's canvas.
  */
-export function AppShell() {
+function ShellFrame() {
+  const { role, setRole } = useSession();
   const [world, setWorld] = useState<WorldKey>(DEFAULT_WORLD);
-  const [role, setRole] = useState<RoleKey>(DEFAULT_ROLE);
   const [moduleByWorld, setModuleByWorld] =
     useState<ModuleByWorld>(INITIAL_MODULES);
 
@@ -49,5 +48,17 @@ export function AppShell() {
         expedition="Torres del Paine"
       />
     </div>
+  );
+}
+
+/**
+ * AppShell — the application root. Establishes the session (active role +
+ * capabilities) for the whole app, then renders the shell frame.
+ */
+export function AppShell() {
+  return (
+    <SessionProvider>
+      <ShellFrame />
+    </SessionProvider>
   );
 }
