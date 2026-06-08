@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark, buttonVariants } from "@/components/ui";
+import { cn } from "@/lib/cn";
 import { WORLDS } from "@/features/theme";
 
 /** Public site header: wordmark, world anchors, and the entry CTA. */
@@ -25,7 +26,10 @@ export function PublicHeader() {
 
         <Link
           href="/plan/route"
-          className={buttonVariants({ variant: "primary", size: "md" })}
+          className={cn(
+            buttonVariants({ variant: "primary", size: "md" }),
+            "ml-auto md:ml-0",
+          )}
         >
           Enter operations
         </Link>
