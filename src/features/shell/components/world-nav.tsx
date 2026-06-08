@@ -11,7 +11,10 @@ interface WorldNavProps {
 /** The world switch: one button per world, stacked in the spine. */
 export function WorldNav({ active, onSelect }: WorldNavProps) {
   return (
-    <nav className="flex w-full flex-col items-center gap-2" aria-label="Worlds">
+    <nav
+      className="flex w-full flex-col items-center gap-2"
+      aria-label="Worlds"
+    >
       {WORLDS.map((world) => {
         const on = world.key === active;
         const accent = SPINE_ACCENT[world.key];
