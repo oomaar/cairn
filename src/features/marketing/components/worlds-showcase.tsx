@@ -29,43 +29,45 @@ export function WorldsShowcase() {
                 href={`/${world.key}/${world.defaultModule}`}
                 className="group flex flex-col rounded-xl border border-border bg-surface p-6 transition-colors hover:border-border-strong"
               >
-                <span
-                  className={cn(
-                    "grid size-11 place-items-center rounded-lg",
-                    accent.chip,
-                    accent.text,
-                  )}
-                >
-                  <Icon name={world.icon as IconName} size={22} />
-                </span>
-                <Text as="h3" variant="title" className="mt-5">
-                  {world.label}
-                </Text>
-                <Text variant="body-sm" tone="secondary" className="mt-1.5">
-                  {world.description}.
-                </Text>
+                <div className="flex-1">
+                  <span
+                    className={cn(
+                      "grid size-11 place-items-center rounded-lg",
+                      accent.chip,
+                      accent.text,
+                    )}
+                  >
+                    <Icon name={world.icon as IconName} size={22} />
+                  </span>
+                  <Text as="h3" variant="title" className="mt-5">
+                    {world.label}
+                  </Text>
+                  <Text variant="body-sm" tone="secondary" className="mt-1.5">
+                    {world.description}.
+                  </Text>
 
-                <ul className="mt-5 flex flex-col gap-1.5 border-t border-border-soft pt-4">
-                  {world.modules.map((m) => (
-                    <li key={m.key} className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          "size-1 rounded-full",
-                          accent.text,
-                          "bg-current",
-                        )}
-                      />
-                      <Text variant="caption" as="span" tone="tertiary">
-                        {m.label}
-                      </Text>
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="mt-5 flex flex-col gap-1.5 border-t border-border-soft pt-4">
+                    {world.modules.map((m) => (
+                      <li key={m.key} className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "size-1 rounded-full",
+                            accent.text,
+                            "bg-current",
+                          )}
+                        />
+                        <Text variant="caption" as="span" tone="tertiary">
+                          {m.label}
+                        </Text>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
                 <span
                   className={cn(
                     buttonVariants({ variant: "secondary", size: "md" }),
-                    "mt-auto w-full justify-between text-fg-2 transition-colors group-hover:border-accent-line group-hover:bg-accent-tint group-hover:text-accent-bright",
+                    "mt-6 w-full justify-between text-fg-2 transition-colors group-hover:border-accent-line group-hover:bg-accent-tint group-hover:text-accent-bright",
                   )}
                 >
                   Open {world.label}
