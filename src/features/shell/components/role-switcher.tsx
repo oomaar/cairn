@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { WorldKey } from "@/features/theme";
-import { ROLES, type RoleKey } from "../roles";
+import { ROLES, type RoleKey } from "@/features/session";
 import { SPINE_ACCENT } from "../spine-accent";
 
 interface RoleSwitcherProps {
@@ -21,7 +21,11 @@ export function RoleSwitcher({ active, world, onSelect }: RoleSwitcherProps) {
       <span className="font-mono text-3xs uppercase tracking-[0.12em] text-spine-ink-3">
         Role
       </span>
-      <div className="flex flex-col gap-1" role="group" aria-label="View as role">
+      <div
+        className="flex flex-col gap-1"
+        role="group"
+        aria-label="View as role"
+      >
         {ROLES.map((role) => {
           const on = role.key === active;
           return (
