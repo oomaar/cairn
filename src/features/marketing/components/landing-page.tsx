@@ -1,5 +1,6 @@
 import { PublicHeader } from "./public-header";
 import { Hero } from "./hero";
+import { Mission } from "./mission";
 import { WorldsShowcase } from "./worlds-showcase";
 import { LiveUniverse } from "./live-universe";
 import { ClosingCta } from "./closing-cta";
@@ -16,6 +17,7 @@ export function LandingPage() {
       <PublicHeader />
       <main className="flex-1">
         <Hero />
+        <Mission />
         <WorldsShowcase />
         <LiveUniverse />
         <ClosingCta />
