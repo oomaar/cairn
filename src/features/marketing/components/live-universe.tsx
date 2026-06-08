@@ -1,7 +1,7 @@
-import { Text } from "@/components/ui";
-import { cn } from "@/lib/cn";
-import { computeKpis, listExpeditions } from "@/universe";
-import { TONE_DOT } from "../marketing.constants";
+import Link from "next/link";
+import { Icon, Text } from "@/components/ui";
+import { computeKpis, getLeader, listExpeditions } from "@/universe";
+import { ExpeditionCard } from "./expedition-card";
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
@@ -17,8 +17,9 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /**
- * A readout of the operation as it stands right now, sourced from the live
- * universe — the public site is backed by the same data the platform runs on.
+ * The operation as it stands right now, sourced from the live universe — KPIs
+ * plus the full slate of expeditions as teaser cards. The public site is
+ * backed by the same data the platform runs on.
  */
 export function LiveUniverse() {
   const kpis = computeKpis();
@@ -48,46 +49,27 @@ export function LiveUniverse() {
           <Stat value={`${kpis.equipment.readyPct}%`} label="Equipment ready" />
         </div>
 
-        <div className="mt-12 overflow-hidden rounded-xl border border-border bg-surface">
+        <div className="mt-12 flex items-baseline justify-between">
+          <Text variant="title" as="h3" className="text-lg">
+            Expeditions on the board
+          </Text>
+          <Link
+            href="/plan/expeditions"
+            className="flex items-center gap-1.5 text-sm font-semibold text-fg-2 transition-colors hover:text-fg-1"
+          >
+            Open the expeditions board
+            <Icon name="arrowR" size={14} />
+          </Link>
+        </div>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {expeditions.map((expedition, i) => (
-            <div
+            <ExpeditionCard
               key={expedition.id}
-              className={cn(
-                "flex items-center gap-4 px-5 py-4",
-                i > 0 && "border-t border-border-soft",
-              )}
-            >
-              <span
-                className={cn(
-                  "size-2 flex-none rounded-full",
-                  TONE_DOT[expedition.statusTone],
-                )}
-              />
-              <div className="min-w-0 flex-1">
-                <Text variant="body-sm" as="p" className="truncate font-medium">
-                  {expedition.name}
-                </Text>
-                <Text variant="caption" as="p" tone="tertiary">
-                  {expedition.region}, {expedition.country}
-                </Text>
-              </div>
-              <Text
-                variant="caption"
-                as="span"
-                tone="tertiary"
-                className="hidden sm:block"
-              >
-                {expedition.distanceKm} km · {expedition.grade}
-              </Text>
-              <Text
-                variant="caption"
-                as="span"
-                tone="secondary"
-                className="w-20 text-right font-mono uppercase"
-              >
-                {expedition.statusLabel}
-              </Text>
-            </div>
+              expedition={expedition}
+              leader={getLeader(expedition.id)}
+              index={i}
+            />
           ))}
         </div>
       </div>
