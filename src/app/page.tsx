@@ -1,8 +1,6 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_WORLD, WORLD_BY_KEY } from "@/features/theme";
+import { LandingPage } from "@/features/marketing";
 
-/** Entry point — send people into the default world's default workspace. */
-export default function RootPage() {
-  const world = WORLD_BY_KEY[DEFAULT_WORLD];
-  redirect(`/${world.key}/${world.defaultModule}`);
+/** Public landing page (warm-paper theme). The app lives at /[world]/[module]. */
+export default function HomePage() {
+  return <LandingPage />;
 }

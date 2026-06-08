@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SessionProvider, useSession } from "@/features/session";
+import { SessionProvider, useSession, type RoleKey } from "@/features/session";
 import { NavigationProvider, useNavigation } from "@/features/navigation";
 import {
   CommandPalette,
@@ -37,9 +37,15 @@ function ShellChrome({ children }: { children: ReactNode }) {
  * the always-mounted command palette. Rendered from the shell route-group
  * layout, so it survives navigation between worlds and modules.
  */
-export function ShellLayout({ children }: { children: ReactNode }) {
+export function ShellLayout({
+  children,
+  initialRole,
+}: {
+  children: ReactNode;
+  initialRole?: RoleKey;
+}) {
   return (
-    <SessionProvider>
+    <SessionProvider initialRole={initialRole}>
       <NavigationProvider>
         <CommandPaletteProvider>
           <ShellChrome>{children}</ShellChrome>
