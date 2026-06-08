@@ -1,7 +1,7 @@
 import { CairnMark } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import type { WorldKey } from "@/features/theme";
-import type { RoleKey } from "../roles";
+import type { RoleKey } from "@/features/session";
 import { SPINE_ACCENT } from "../spine-accent";
 import { WorldNav } from "./world-nav";
 import { RoleSwitcher } from "./role-switcher";
