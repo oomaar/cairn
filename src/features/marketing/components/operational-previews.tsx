@@ -4,7 +4,6 @@ import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { WORLD_BY_KEY, type WorldKey } from "@/features/theme";
 import { PlanPreview } from "./plan-preview";
-import { OperatePreview } from "./operate-preview";
 import { RecordPreview } from "./record-preview";
 
 interface PreviewRowProps {
@@ -75,19 +74,10 @@ export function OperationalPreviews() {
           </PreviewRow>
 
           <PreviewRow
-            worldKey="operate"
-            headline="Run the day, live."
-            blurb="Every member's pace and vitals, the weather on the pass, and the next checkpoint — in one command view that updates as the team moves."
-            reverse
-          >
-            <OperatePreview />
-          </PreviewRow>
-
-          <PreviewRow
             worldKey="record"
             headline="Keep a faithful record."
             blurb="Movement, weather, incidents and comms fold into a daybook automatically — a complete account you can hand to anyone."
-            reverse={false}
+            reverse
           >
             <RecordPreview />
           </PreviewRow>
