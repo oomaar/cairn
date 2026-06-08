@@ -34,7 +34,11 @@ export function WorldCanvas({
     >
       {/* Module tabs + expedition context */}
       <div className="flex h-12 flex-none items-stretch border-b border-border font-mono">
-        <div className="flex" role="tablist" aria-label={`${world.label} modules`}>
+        <div
+          className="flex"
+          role="tablist"
+          aria-label={`${world.label} modules`}
+        >
           {world.modules.map((m) => {
             const on = m.key === activeModule.key;
             return (
