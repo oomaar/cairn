@@ -1,6 +1,6 @@
 "use client";
 
-import { WORLD_BY_KEY } from "@/features/theme";
+import type { ReactNode } from "react";
 import { SessionProvider, useSession } from "@/features/session";
 import { NavigationProvider, useNavigation } from "@/features/navigation";
 import {
@@ -8,19 +8,14 @@ import {
   CommandPaletteProvider,
   useCommandPalette,
 } from "@/features/command-palette";
-import { getExpedition } from "@/universe";
 import { Spine } from "./spine";
-import { WorldCanvas } from "./world-canvas";
 
-/**
- * The shell frame — the persistent layout. Reads navigation and session from
- * context and composes the constant spine with the active world's canvas.
- */
-function ShellFrame() {
+/** Reads the app contexts and renders the constant spine alongside the routed
+ *  world canvas ({children}). */
+function ShellChrome({ children }: { children: ReactNode }) {
   const { role, setRole } = useSession();
   const nav = useNavigation();
   const { openPalette } = useCommandPalette();
-  const expedition = getExpedition(nav.focusedExpeditionId);
 
   return (
     <div className="flex flex-1 overflow-hidden bg-spine">
@@ -31,27 +26,23 @@ function ShellFrame() {
         onRoleChange={setRole}
         onOpenCommand={openPalette}
       />
-      <WorldCanvas
-        world={WORLD_BY_KEY[nav.world]}
-        module={nav.module}
-        onModuleChange={nav.setModule}
-        expedition={expedition?.name ?? "—"}
-      />
+      <main className="flex min-w-0 flex-1 flex-col">{children}</main>
     </div>
   );
 }
 
 /**
- * AppShell — the application root. Establishes the session, navigation and
- * command-palette contexts for the whole app, then renders the shell frame
- * with the always-mounted command palette overlay.
+ * The persistent application shell. Establishes the session, navigation and
+ * command-palette contexts once, then frames every route with the spine and
+ * the always-mounted command palette. Rendered from the shell route-group
+ * layout, so it survives navigation between worlds and modules.
  */
-export function AppShell() {
+export function ShellLayout({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
       <NavigationProvider>
         <CommandPaletteProvider>
-          <ShellFrame />
+          <ShellChrome>{children}</ShellChrome>
           <CommandPalette />
         </CommandPaletteProvider>
       </NavigationProvider>
