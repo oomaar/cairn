@@ -1,64 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import {
-  WORLDS,
-  WORLD_BY_KEY,
-  DEFAULT_WORLD,
-  type WorldKey,
-} from "@/features/theme";
+import { WORLD_BY_KEY } from "@/features/theme";
 import { SessionProvider, useSession } from "@/features/session";
+import { NavigationProvider, useNavigation } from "@/features/navigation";
+import {
+  CommandPalette,
+  CommandPaletteProvider,
+  useCommandPalette,
+} from "@/features/command-palette";
+import { getExpedition } from "@/universe";
 import { Spine } from "./spine";
 import { WorldCanvas } from "./world-canvas";
 
-/** Per-world module selection, so switching worlds preserves each world's
- *  last-open workspace. Seeded from each world's default module. */
-type ModuleByWorld = Record<WorldKey, string>;
-
-const INITIAL_MODULES: ModuleByWorld = Object.fromEntries(
-  WORLDS.map((world) => [world.key, world.defaultModule]),
-) as ModuleByWorld;
-
 /**
- * The shell frame — the persistent layout. Owns world/module navigation state
- * and reads the active role from the session, composing the constant spine
- * with the active world's canvas.
+ * The shell frame — the persistent layout. Reads navigation and session from
+ * context and composes the constant spine with the active world's canvas.
  */
 function ShellFrame() {
   const { role, setRole } = useSession();
-  const [world, setWorld] = useState<WorldKey>(DEFAULT_WORLD);
-  const [moduleByWorld, setModuleByWorld] =
-    useState<ModuleByWorld>(INITIAL_MODULES);
-
-  const setModule = (next: string) =>
-    setModuleByWorld((prev) => ({ ...prev, [world]: next }));
+  const nav = useNavigation();
+  const { openPalette } = useCommandPalette();
+  const expedition = getExpedition(nav.focusedExpeditionId);
 
   return (
     <div className="flex flex-1 overflow-hidden bg-spine">
       <Spine
-        world={world}
+        world={nav.world}
         role={role}
-        onWorldChange={setWorld}
+        onWorldChange={nav.setWorld}
         onRoleChange={setRole}
+        onOpenCommand={openPalette}
       />
       <WorldCanvas
-        world={WORLD_BY_KEY[world]}
-        module={moduleByWorld[world]}
-        onModuleChange={setModule}
-        expedition="Torres del Paine"
+        world={WORLD_BY_KEY[nav.world]}
+        module={nav.module}
+        onModuleChange={nav.setModule}
+        expedition={expedition?.name ?? "—"}
       />
     </div>
   );
 }
 
 /**
- * AppShell — the application root. Establishes the session (active role +
- * capabilities) for the whole app, then renders the shell frame.
+ * AppShell — the application root. Establishes the session, navigation and
+ * command-palette contexts for the whole app, then renders the shell frame
+ * with the always-mounted command palette overlay.
  */
 export function AppShell() {
   return (
     <SessionProvider>
-      <ShellFrame />
+      <NavigationProvider>
+        <CommandPaletteProvider>
+          <ShellFrame />
+          <CommandPalette />
+        </CommandPaletteProvider>
+      </NavigationProvider>
     </SessionProvider>
   );
 }
