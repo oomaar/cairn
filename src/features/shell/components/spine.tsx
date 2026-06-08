@@ -18,9 +18,14 @@ interface SpineProps {
  * identity, the world switch, and the role/identity controls. It sits outside
  * any `.world-*` scope, so it stays neutral while the canvas re-skins.
  */
-export function Spine({ world, role, onWorldChange, onRoleChange }: SpineProps) {
+export function Spine({
+  world,
+  role,
+  onWorldChange,
+  onRoleChange,
+}: SpineProps) {
   return (
-    <aside className="z-30 flex w-[82px] flex-none flex-col items-center border-r border-spine-edge bg-spine py-3.5">
+    <aside className="z-30 flex w-20.5 flex-none flex-col items-center border-r border-spine-edge bg-spine py-3.5">
       <div className={cn("mb-4.5", SPINE_ACCENT[world].text)} title="Cairn">
         <CairnMark size={30} className="text-current" />
       </div>
