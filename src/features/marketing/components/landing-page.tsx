@@ -2,6 +2,7 @@ import { PublicHeader } from "./public-header";
 import { Hero } from "./hero";
 import { Mission } from "./mission";
 import { WorldsShowcase } from "./worlds-showcase";
+import { OperationalPreviews } from "./operational-previews";
 import { LiveUniverse } from "./live-universe";
 import { ClosingCta } from "./closing-cta";
 import { PublicFooter } from "./public-footer";
@@ -19,6 +20,7 @@ export function LandingPage() {
         <Hero />
         <Mission />
         <WorldsShowcase />
+        <OperationalPreviews />
         <LiveUniverse />
         <ClosingCta />
       </main>
