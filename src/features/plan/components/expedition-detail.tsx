@@ -5,13 +5,13 @@ import { cn } from "@/lib/cn";
 import { useCan } from "@/features/session";
 import {
   getExpedition,
-  getGearManifest,
   getIncidents,
   getWeather,
   listRisks,
   type Tone,
 } from "@/universe";
 import { CrewManager } from "./crew-manager";
+import { EquipmentManager } from "./equipment-manager";
 import { GuideAssignment } from "./guide-assignment";
 
 const TONE_DOT: Record<Tone, string> = {
@@ -103,10 +103,10 @@ export function ExpeditionDetail({
   onOpenRoute,
 }: ExpeditionDetailProps) {
   const canManage = useCan("roster:manage");
+  const canManageEquipment = useCan("equipment:manage");
   const expedition = getExpedition(expeditionId);
   if (!expedition) return null;
 
-  const gear = getGearManifest(expeditionId);
   const risks = listRisks({ expeditionId });
   const weather = getWeather(expeditionId);
   const incidents = getIncidents(expeditionId);
@@ -188,32 +188,11 @@ export function ExpeditionDetail({
             canManage={canManage}
           />
 
-          {/* Equipment */}
-          {gear.length > 0 && (
-            <Section title="Equipment manifest" count={gear.length}>
-              <ul className="flex flex-col gap-1.5">
-                {gear.map(({ allocation, item }) => (
-                  <li key={allocation.id} className="flex items-center gap-2.5">
-                    <Text
-                      variant="caption"
-                      as="span"
-                      className="flex-1 truncate text-fg-2"
-                    >
-                      {item.name}
-                    </Text>
-                    <Text
-                      variant="caption"
-                      as="span"
-                      tone="tertiary"
-                      className="font-mono"
-                    >
-                      ×{allocation.quantity}
-                    </Text>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
+          {/* Equipment — read-only manifest, or requirements manager */}
+          <EquipmentManager
+            expeditionId={expeditionId}
+            canManage={canManageEquipment}
+          />
 
           {/* Risks */}
           {risks.length > 0 && (
