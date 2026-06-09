@@ -65,6 +65,10 @@ const BARBS: [number, number][] = [
   [700, 120],
   [860, 130],
 ];
+/** Hypsometric relief bands (low → high) for the terrain view. */
+const RELIEF_BANDS = ["#101a17", "#13211c", "#172821", "#1c2f26"];
+
+type ChartView = "chart" | "terrain";
 
 const tagLabel = (name: string) =>
   name.length > 16 ? `${name.slice(0, 15)}…` : name;
@@ -94,6 +98,7 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
     const [measurePts, setMeasurePts] = useState<{ x: number; y: number }[]>(
       [],
     );
+    const [view, setView] = useState<ChartView>("chart");
     const drag = useRef<{ cx: number; cy: number; moved: boolean } | null>(
       null,
     );
@@ -301,6 +306,23 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
             height={CHART_H}
             className="fill-app"
           />
+
+          {/* Terrain view — hypsometric relief bands (low → high) */}
+          {view === "terrain" &&
+            PEAKS.map(([cx, cy, s], pi) =>
+              RELIEF_BANDS.map((col, bi) => (
+                <path
+                  key={`band${pi}-${bi}`}
+                  d={contourRing(
+                    cx,
+                    cy,
+                    (RELIEF_BANDS.length - bi) * 52 + 34,
+                    s + bi * 0.6,
+                  )}
+                  fill={col}
+                />
+              )),
+            )}
 
           {layers.terrain &&
             PEAKS.map(([cx, cy, s], pi) =>
@@ -696,7 +718,25 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
         </svg>
 
         {/* Controls */}
-        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+        <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
+          <div className="flex overflow-hidden rounded-md border border-border bg-app/85 font-mono text-3xs backdrop-blur-sm">
+            {(["chart", "terrain"] as ChartView[]).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                aria-pressed={view === v}
+                className={cn(
+                  "px-2.5 py-1 uppercase tracking-[0.06em] transition-colors",
+                  view === v
+                    ? "bg-accent-tint text-accent-bright"
+                    : "text-fg-3 hover:text-fg-1",
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
           <div className="flex flex-col overflow-hidden rounded-md border border-border bg-app/85 backdrop-blur-sm">
             <ControlButton
               label="Zoom in"
