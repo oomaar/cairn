@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Avatar, Icon, Text } from "@/components/ui";
 import {
   getExpeditionsForPerson,
-  getRoster,
   listPeople,
   type ExpeditionRole,
   type Person,
@@ -33,21 +32,24 @@ const avatarTone = (tone?: Tone): AvatarTone =>
         : "quiet";
 
 interface CrewManagerProps {
-  expeditionId: string;
+  roster: RosterEntry[];
   capacity: number;
   canManage: boolean;
+  onAdd: (person: Person) => void;
+  onRemove: (personId: string) => void;
+  onSetRole: (personId: string, role: ExpeditionRole) => void;
 }
 
 /** Crew roster — read-only, or an assignment manager when the role can manage
  *  the roster: change roles, remove crew, and assign available people. */
 export function CrewManager({
-  expeditionId,
+  roster,
   capacity,
   canManage,
+  onAdd,
+  onRemove,
+  onSetRole,
 }: CrewManagerProps) {
-  const [roster, setRoster] = useState<RosterEntry[]>(() =>
-    getRoster(expeditionId),
-  );
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -61,30 +63,6 @@ export function CrewManager({
       (!q || p.name.toLowerCase().includes(q)),
   );
   const atCapacity = roster.length >= capacity;
-
-  const setRole = (personId: string, role: ExpeditionRole) =>
-    setRoster((prev) =>
-      prev.map((r) =>
-        r.person.id === personId
-          ? { ...r, assignment: { ...r.assignment, role } }
-          : r,
-      ),
-    );
-  const remove = (personId: string) =>
-    setRoster((prev) => prev.filter((r) => r.person.id !== personId));
-  const add = (person: Person) =>
-    setRoster((prev) => [
-      ...prev,
-      {
-        assignment: {
-          id: `asg-${expeditionId}-${person.id}`,
-          expeditionId,
-          personId: person.id,
-          role: "participant",
-        },
-        person,
-      },
-    ]);
 
   return (
     <section className="border-t border-border-soft px-5 py-4">
@@ -133,7 +111,7 @@ export function CrewManager({
                 <select
                   value={assignment.role}
                   onChange={(e) =>
-                    setRole(person.id, e.target.value as ExpeditionRole)
+                    onSetRole(person.id, e.target.value as ExpeditionRole)
                   }
                   aria-label={`Role for ${person.name}`}
                   className="rounded border border-border bg-inset px-1.5 py-0.5 font-mono text-2xs text-fg-1 outline-none focus-visible:border-accent-line"
@@ -146,7 +124,7 @@ export function CrewManager({
                 </select>
                 <button
                   type="button"
-                  onClick={() => remove(person.id)}
+                  onClick={() => onRemove(person.id)}
                   aria-label={`Remove ${person.name}`}
                   className="grid size-5 flex-none place-items-center rounded text-fg-4 transition-colors hover:text-danger-bright"
                 >
@@ -197,7 +175,7 @@ export function CrewManager({
                     <li key={person.id}>
                       <button
                         type="button"
-                        onClick={() => add(person)}
+                        onClick={() => onAdd(person)}
                         className="flex w-full items-center gap-2.5 rounded px-1.5 py-1.5 text-left transition-colors hover:bg-raised"
                       >
                         <Avatar
