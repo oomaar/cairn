@@ -1,4 +1,20 @@
-import type { CheckpointStatus, CheckpointType } from "@/universe";
+import type {
+  CheckpointStatus,
+  CheckpointType,
+  Tone,
+  WeatherIcon,
+} from "@/universe";
+
+/** A weather alert resolved for the chart, anchored to a checkpoint. */
+export interface PlanWeather {
+  id: string;
+  checkpointId: string | null;
+  icon: WeatherIcon;
+  tone: Tone;
+  title: string;
+  place: string;
+  detail: string;
+}
 
 /** A checkpoint resolved for the chart table: route metrics, a plotted chart
  *  position, derived coordinates, and any linked weather hazard. */
@@ -38,6 +54,7 @@ export interface RoutePlan {
   originLng: number;
   stations: PlanStation[];
   elevationProfile: number[];
+  weather: PlanWeather[];
 }
 
 /** Toggleable chart overlays driven by the plotting tools. */

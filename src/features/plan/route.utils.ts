@@ -5,7 +5,7 @@ import {
   getWeather,
   listExpeditions,
 } from "@/universe";
-import type { PlanStation, RoutePlan } from "./route.types";
+import type { PlanStation, PlanWeather, RoutePlan } from "./route.types";
 
 /** Chart viewBox + plotting margins. */
 export const CHART_W = 960;
@@ -332,6 +332,16 @@ export function buildRoutePlan(expeditionId: string): RoutePlan | null {
     };
   });
 
+  const weather: PlanWeather[] = alerts.map((a) => ({
+    id: a.id,
+    checkpointId: a.checkpointId,
+    icon: a.icon,
+    tone: a.tone,
+    title: a.title,
+    place: a.place,
+    detail: a.detail,
+  }));
+
   const sheetIndex = listExpeditions().findIndex((e) => e.id === expeditionId);
 
   return {
@@ -348,5 +358,6 @@ export function buildRoutePlan(expeditionId: string): RoutePlan | null {
     originLng: lng,
     stations,
     elevationProfile: route.elevationProfile,
+    weather,
   };
 }
