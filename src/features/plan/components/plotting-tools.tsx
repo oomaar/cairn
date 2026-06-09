@@ -8,7 +8,7 @@ interface Tool {
 }
 
 const TOOLS: Tool[] = [
-  { key: "terrain", label: "Terrain" },
+  { key: "terrain", label: "Contours" },
   { key: "water", label: "Watercourses" },
   { key: "weather", label: "Weather" },
   { key: "risk", label: "Risk overlay" },
