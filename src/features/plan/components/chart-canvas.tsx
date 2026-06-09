@@ -35,6 +35,8 @@ interface ChartCanvasProps {
   originLat: number;
   originLng: number;
   alternate: AlternateRoute | null;
+  /** Which line is committed — drawn bold; the other shows as a ghost. */
+  activeRoute: "primary" | "alternate";
   weather: PlanWeather[];
   risks: PlanRisk[];
   /** Live party position as a fraction of total distance (0..1). */
@@ -106,6 +108,7 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
       originLat,
       originLng,
       alternate,
+      activeRoute,
       weather,
       risks,
       partyT,
@@ -560,63 +563,92 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
               );
             })}
 
-          {/* Alternate route overlay */}
-          {alternate && (
-            <g className="stroke-(--plan-sage)">
-              <path
-                d={`M${alternate.points.map((p) => `${p.x} ${p.y}`).join(" L")}`}
-                fill="none"
-                strokeWidth={2}
-                strokeDasharray="6 5"
-                opacity={0.85}
-              />
-              {(() => {
-                const tip = alternate.points.reduce(
-                  (a, b) => (b.y > a.y ? b : a),
-                  alternate.points[0],
-                );
-                return (
-                  <g transform={`translate(${tip.x}, ${tip.y + 22})`}>
-                    <rect
-                      x={-58}
-                      y={-12}
-                      width={116}
-                      height={20}
-                      rx={3}
-                      className="fill-surface stroke-(--plan-sage)"
-                      strokeWidth={1}
-                    />
-                    <text
-                      textAnchor="middle"
-                      y={2}
-                      fontSize={9}
-                      className="fill-(--plan-sage) font-mono"
-                    >
-                      ALT · {alternate.distanceKm} km
-                    </text>
-                  </g>
-                );
-              })()}
-            </g>
-          )}
+          {/* Routes — committed line bold on top, the other a ghost beneath */}
+          {(() => {
+            const altActive = activeRoute === "alternate";
+            const altD = alternate
+              ? `M${alternate.points.map((p) => `${p.x} ${p.y}`).join(" L")}`
+              : "";
 
-          {/* Primary route */}
-          <path
-            d={routeD}
-            fill="none"
-            strokeWidth={6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="stroke-app"
-          />
-          <path
-            d={routeD}
-            fill="none"
-            strokeWidth={2.4}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="stroke-accent"
-          />
+            const primary = (
+              <g key="route-primary">
+                {!altActive && (
+                  <path
+                    d={routeD}
+                    fill="none"
+                    strokeWidth={6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="stroke-app"
+                  />
+                )}
+                <path
+                  d={routeD}
+                  fill="none"
+                  strokeWidth={altActive ? 2 : 2.4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray={altActive ? "6 5" : undefined}
+                  opacity={altActive ? 0.45 : 1}
+                  className="stroke-accent"
+                />
+              </g>
+            );
+
+            const alt =
+              alternate && altD ? (
+                <g key="route-alt" className="stroke-(--plan-sage)">
+                  {altActive && (
+                    <path
+                      d={altD}
+                      fill="none"
+                      strokeWidth={6}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="stroke-app"
+                    />
+                  )}
+                  <path
+                    d={altD}
+                    fill="none"
+                    strokeWidth={altActive ? 2.4 : 2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray={altActive ? undefined : "6 5"}
+                    opacity={altActive ? 1 : 0.7}
+                  />
+                  {(() => {
+                    const tip = alternate.points.reduce(
+                      (a, b) => (b.y > a.y ? b : a),
+                      alternate.points[0],
+                    );
+                    return (
+                      <g transform={`translate(${tip.x}, ${tip.y + 22})`}>
+                        <rect
+                          x={-58}
+                          y={-12}
+                          width={116}
+                          height={20}
+                          rx={3}
+                          className="fill-surface stroke-(--plan-sage)"
+                          strokeWidth={1}
+                        />
+                        <text
+                          textAnchor="middle"
+                          y={2}
+                          fontSize={9}
+                          className="fill-(--plan-sage) font-mono"
+                        >
+                          {altActive ? "B" : "ALT"} · {alternate.distanceKm} km
+                        </text>
+                      </g>
+                    );
+                  })()}
+                </g>
+              ) : null;
+
+            return altActive ? [primary, alt] : [alt, primary];
+          })()}
 
           {/* Measure */}
           {measurePts.length > 0 && (
