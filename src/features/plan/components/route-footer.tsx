@@ -1,6 +1,6 @@
 import { Text } from "@/components/ui";
 import type { AlternateRoute } from "../route.utils";
-import type { RoutePlan } from "../route.types";
+import type { PlanStation, RoutePlan } from "../route.types";
 import { ElevationProfile } from "./elevation-profile";
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
@@ -24,18 +24,20 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 /** Footer: elevation cross-section (left) + route summary (right). */
 export function RouteFooter({
   plan,
+  stations,
   selectedId,
   onSelect,
   alternate,
   partyT,
 }: {
   plan: RoutePlan;
+  stations: PlanStation[];
   selectedId: string;
   onSelect: (id: string) => void;
   alternate: AlternateRoute | null;
   partyT: number;
 }) {
-  const hazardStation = plan.stations.find((s) => s.hazard);
+  const hazardStation = stations.find((s) => s.hazard);
   return (
     <div className="flex flex-none border-t border-border bg-raised">
       <div className="min-w-0 flex-1 p-4">
@@ -62,7 +64,7 @@ export function RouteFooter({
         <div className="mt-2">
           <ElevationProfile
             profile={plan.elevationProfile}
-            stations={plan.stations}
+            stations={stations}
             chartDistanceKm={plan.chartDistanceKm}
             selectedId={selectedId}
             onSelect={onSelect}
@@ -86,12 +88,12 @@ export function RouteFooter({
             label="Total gain"
             value={`▲${plan.totalGainM.toLocaleString()} m`}
           />
-          <SummaryRow
-            label="Checkpoints"
-            value={String(plan.stations.length)}
-          />
+          <SummaryRow label="Checkpoints" value={String(stations.length)} />
           <SummaryRow label="Duration" value={`${plan.dayTotal} days`} />
-          <SummaryRow label="Hazards" value={String(plan.hazardCount)} />
+          <SummaryRow
+            label="Hazards"
+            value={String(stations.filter((s) => s.hazard).length)}
+          />
         </div>
 
         {alternate && (
