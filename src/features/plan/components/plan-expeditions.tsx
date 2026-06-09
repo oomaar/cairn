@@ -6,11 +6,16 @@ import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
 import {
   getLeader,
+  getPerson,
   listExpeditions,
   type Expedition,
   type Tone,
 } from "@/universe";
 import { contourRing } from "../route.utils";
+import {
+  useExpeditionDrafts,
+  type ExpeditionDraft,
+} from "../expedition-drafts";
 import { ExpeditionDetail } from "./expedition-detail";
 
 const STATUS_DOT: Record<Tone, string> = {
@@ -149,11 +154,75 @@ function ExpeditionSheet({
   );
 }
 
+/** A filed-this-session draft — display only (no universe record to open). */
+function DraftSheet({
+  draft,
+  index,
+}: {
+  draft: ExpeditionDraft;
+  index: number;
+}) {
+  const leader = draft.leaderId ? getPerson(draft.leaderId) : undefined;
+  return (
+    <article className="flex flex-col overflow-hidden rounded-lg border border-accent-line bg-surface">
+      <div className="relative h-24 border-b border-border-soft">
+        <SheetThumb seed={index + 1} />
+        <span className="absolute left-2.5 top-2 font-mono text-3xs uppercase tracking-[0.08em] text-fg-3">
+          Sheet {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="absolute right-2.5 top-2 rounded-pill bg-accent-tint px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.06em] text-accent-bright">
+          Draft
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col p-3.5">
+        <Text as="h3" variant="title" className="truncate text-base">
+          {draft.name}
+        </Text>
+        <Text variant="caption" as="p" tone="tertiary">
+          {draft.region}, {draft.country}
+        </Text>
+        <div className="mt-2.5 flex items-center gap-2">
+          <Avatar
+            initials={leader?.initials ?? "—"}
+            size="sm"
+            tone={avatarTone(leader?.tone)}
+          />
+          <Text
+            variant="caption"
+            as="span"
+            tone="secondary"
+            className="truncate"
+          >
+            {leader?.name ?? "Unassigned"}
+          </Text>
+          <Text
+            variant="caption"
+            as="span"
+            tone="tertiary"
+            className="ml-auto whitespace-nowrap font-mono"
+          >
+            {draft.gearCount} kit
+          </Text>
+        </div>
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border-soft pt-2.5 font-mono text-2xs text-fg-3">
+          <span>{draft.distanceKm} km</span>
+          <span>▲{draft.gainM.toLocaleString()}</span>
+          <span>{draft.dayTotal}d</span>
+          <span className="capitalize text-accent-bright">
+            {capitalize(draft.grade)}
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 /** Plan → Expeditions: the sheet index. Open a card for its dossier, then into
  *  Route Planning. */
 export function PlanExpeditions() {
   const nav = useNavigation();
   const expeditions = listExpeditions();
+  const { drafts } = useExpeditionDrafts();
   const [detailId, setDetailId] = useState<string | null>(null);
 
   const openRoute = (id: string) => {
@@ -178,7 +247,7 @@ export function PlanExpeditions() {
           tone="tertiary"
           className="uppercase tracking-[0.06em]"
         >
-          {expeditions.length} charts on file
+          {expeditions.length + drafts.length} charts on file
         </Text>
       </div>
 
@@ -191,6 +260,13 @@ export function PlanExpeditions() {
               index={i}
               focused={expedition.id === nav.focusedExpeditionId}
               onOpen={() => setDetailId(expedition.id)}
+            />
+          ))}
+          {drafts.map((draft, i) => (
+            <DraftSheet
+              key={draft.id}
+              draft={draft}
+              index={expeditions.length + i}
             />
           ))}
         </div>
