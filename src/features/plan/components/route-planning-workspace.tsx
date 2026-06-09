@@ -9,6 +9,7 @@ import {
   buildRoutePlan,
   insertCheckpoint,
   reindexStations,
+  reorderStations,
 } from "../route.utils";
 import { usePartyProgress } from "../use-party-progress";
 import type { ChartLayers, PlanStation, RoutePlan } from "../route.types";
@@ -101,6 +102,18 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
       ),
     );
 
+  const moveCheckpoint = (fromIndex: number, toIndex: number) =>
+    setStations((prev) =>
+      reorderStations(
+        prev,
+        fromIndex,
+        toIndex,
+        plan.chartDistanceKm,
+        plan.originLat,
+        plan.originLng,
+      ),
+    );
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <SheetMeta plan={plan} />
@@ -133,6 +146,7 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
             onSelect={setSelectedId}
             onAdd={canEdit ? addCheckpoint : undefined}
             onRemove={canEdit ? removeCheckpoint : undefined}
+            onMove={canEdit ? moveCheckpoint : undefined}
           />
           <StationDetail
             station={selected}
