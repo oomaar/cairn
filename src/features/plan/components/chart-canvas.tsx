@@ -18,7 +18,8 @@ import {
   contourRing,
   type AlternateRoute,
 } from "../route.utils";
-import type { ChartLayers, PlanStation } from "../route.types";
+import type { ChartLayers, PlanStation, PlanWeather } from "../route.types";
+import type { Tone } from "@/universe";
 
 interface ChartCanvasProps {
   stations: PlanStation[];
@@ -29,9 +30,22 @@ interface ChartCanvasProps {
   originLat: number;
   originLng: number;
   alternate: AlternateRoute | null;
+  weather: PlanWeather[];
   /** Live party position as a fraction of total distance (0..1). */
   partyT: number;
 }
+
+/** Weather alert tone → plan-palette text color (drives fill/stroke too). */
+const WEATHER_TONE: Record<Tone, string> = {
+  danger: "text-(--plan-signal)",
+  warn: "text-accent-bright",
+  slate: "text-(--plan-water-light)",
+  ok: "text-(--plan-sage)",
+  olive: "text-(--plan-sage)",
+  amber: "text-accent-bright",
+  idle: "text-fg-3",
+  quiet: "text-fg-3",
+};
 
 export interface ChartHandle {
   /** Zoom the sheet to center on a chart position (used by station search). */
@@ -86,6 +100,7 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
       originLat,
       originLng,
       alternate,
+      weather,
       partyT,
     },
     ref,
@@ -385,23 +400,104 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
           )}
 
           {layers.weather && (
-            <g
-              className="stroke-(--plan-water-light)"
-              strokeWidth={1}
-              fill="none"
-              opacity={0.5}
-            >
-              {ISOBARS.map((d, i) => (
-                <path key={`iso${i}`} d={d} strokeDasharray="2 4" />
-              ))}
-              {BARBS.map(([x, y], i) => (
-                <g key={`barb${i}`} strokeWidth={1.2} opacity={0.8}>
-                  <line x1={x} y1={y} x2={x + 18} y2={y - 6} />
-                  <line x1={x + 18} y1={y - 6} x2={x + 13} y2={y - 12} />
-                  <line x1={x + 18} y1={y - 6} x2={x + 10} y2={y - 9} />
-                </g>
-              ))}
-            </g>
+            <>
+              {/* Ambient isobars + wind barbs */}
+              <g
+                className="stroke-(--plan-water-light)"
+                strokeWidth={1}
+                fill="none"
+                opacity={0.4}
+              >
+                {ISOBARS.map((d, i) => (
+                  <path key={`iso${i}`} d={d} strokeDasharray="2 4" />
+                ))}
+                {BARBS.map(([x, y], i) => (
+                  <g key={`barb${i}`} strokeWidth={1.2} opacity={0.7}>
+                    <line x1={x} y1={y} x2={x + 18} y2={y - 6} />
+                    <line x1={x + 18} y1={y - 6} x2={x + 13} y2={y - 12} />
+                    <line x1={x + 18} y1={y - 6} x2={x + 10} y2={y - 9} />
+                  </g>
+                ))}
+              </g>
+
+              {/* Real weather alerts, anchored to their checkpoint */}
+              {weather.map((w) => {
+                const at =
+                  stations.find((s) => s.id === w.checkpointId) ??
+                  stations.find((s) => s.hazard) ??
+                  stations[Math.floor(stations.length / 2)];
+                if (!at) return null;
+                const right = at.x > CHART_W * 0.5;
+                const boxX = right ? at.x - 152 : at.x + 14;
+                return (
+                  <g key={`wx-${w.id}`} className={WEATHER_TONE[w.tone]}>
+                    <circle
+                      cx={at.x}
+                      cy={at.y}
+                      r={48}
+                      fill="currentColor"
+                      fillOpacity={0.08}
+                      stroke="currentColor"
+                      strokeWidth={1}
+                      strokeDasharray="4 4"
+                      opacity={0.85}
+                    />
+                    {w.icon === "wind" &&
+                      [0, 1, 2].map((k) => (
+                        <g
+                          key={k}
+                          stroke="currentColor"
+                          strokeWidth={1.4}
+                          opacity={0.9}
+                          fill="none"
+                        >
+                          <line
+                            x1={at.x - 16}
+                            y1={at.y - 6 + k * 7}
+                            x2={at.x + 12}
+                            y2={at.y - 10 + k * 7}
+                          />
+                          <line
+                            x1={at.x + 12}
+                            y1={at.y - 10 + k * 7}
+                            x2={at.x + 7}
+                            y2={at.y - 14 + k * 7}
+                          />
+                        </g>
+                      ))}
+                    <line
+                      x1={at.x}
+                      y1={at.y - 48}
+                      x2={at.x}
+                      y2={at.y - 62}
+                      stroke="currentColor"
+                      strokeWidth={1}
+                    />
+                    <g transform={`translate(${boxX}, ${at.y - 80})`}>
+                      <rect
+                        x={0}
+                        y={0}
+                        width={138}
+                        height={18}
+                        rx={3}
+                        className="fill-surface"
+                        stroke="currentColor"
+                        strokeWidth={1}
+                      />
+                      <text
+                        x={7}
+                        y={12.5}
+                        fontSize={8.5}
+                        fill="currentColor"
+                        className="font-mono uppercase tracking-[0.04em]"
+                      >
+                        {w.icon} · {tagLabel(w.place)}
+                      </text>
+                    </g>
+                  </g>
+                );
+              })}
+            </>
           )}
 
           {layers.risk &&
