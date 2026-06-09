@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
@@ -10,6 +11,7 @@ import {
   type Tone,
 } from "@/universe";
 import { contourRing } from "../route.utils";
+import { ExpeditionDetail } from "./expedition-detail";
 
 const STATUS_DOT: Record<Tone, string> = {
   danger: "bg-danger",
@@ -147,18 +149,20 @@ function ExpeditionSheet({
   );
 }
 
-/** Plan → Expeditions: the sheet index. Open any chart into Route Planning. */
+/** Plan → Expeditions: the sheet index. Open a card for its dossier, then into
+ *  Route Planning. */
 export function PlanExpeditions() {
   const nav = useNavigation();
   const expeditions = listExpeditions();
+  const [detailId, setDetailId] = useState<string | null>(null);
 
-  const open = (id: string) => {
+  const openRoute = (id: string) => {
     nav.focusExpedition(id);
     nav.goTo("plan", "route");
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-app">
+    <div className="relative flex min-h-0 flex-1 flex-col bg-app">
       <div className="flex h-9 flex-none items-center gap-4 border-b border-border bg-surface px-5 font-mono">
         <Text
           variant="caption"
@@ -186,11 +190,19 @@ export function PlanExpeditions() {
               expedition={expedition}
               index={i}
               focused={expedition.id === nav.focusedExpeditionId}
-              onOpen={() => open(expedition.id)}
+              onOpen={() => setDetailId(expedition.id)}
             />
           ))}
         </div>
       </div>
+
+      {detailId && (
+        <ExpeditionDetail
+          expeditionId={detailId}
+          onClose={() => setDetailId(null)}
+          onOpenRoute={openRoute}
+        />
+      )}
     </div>
   );
 }
