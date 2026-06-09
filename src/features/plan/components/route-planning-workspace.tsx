@@ -7,6 +7,7 @@ import { useCan } from "@/features/session";
 import {
   buildAlternateRoute,
   buildRoutePlan,
+  commitAlternateRoute,
   insertCheckpoint,
   reindexStations,
   reorderStations,
@@ -21,6 +22,7 @@ import { CheckpointList } from "./checkpoint-list";
 import { StationDetail } from "./station-detail";
 import { RouteTimeline } from "./route-timeline";
 import { RouteFooter } from "./route-footer";
+import type { RouteChoice } from "./route-comparison";
 
 const INITIAL_LAYERS: ChartLayers = {
   terrain: true,
@@ -51,14 +53,50 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
     initialStationId(plan.stations),
   );
   const [layers, setLayers] = useState<ChartLayers>(INITIAL_LAYERS);
+  const [activeRoute, setActiveRoute] = useState<RouteChoice>("primary");
+  // When the alternate is adopted, the working set follows it; we snapshot the
+  // pre-commit checkpoints so the planner can revert.
+  const [preCommit, setPreCommit] = useState<PlanStation[] | null>(null);
   const chartRef = useRef<ChartHandle>(null);
   const partyT = usePartyProgress(stations);
 
   const alternate = useMemo(() => buildAlternateRoute(plan), [plan]);
+  const hazardName = useMemo(
+    () => plan.stations.find((s) => s.hazard)?.name,
+    [plan],
+  );
+  const committed = preCommit !== null;
   const selected = stations.find((s) => s.id === selectedId) ?? stations[0];
 
   const toggleLayer = (key: keyof ChartLayers) =>
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // Previewing a line surfaces it on the chart and makes sure the alternate is
+  // actually drawn.
+  const selectRoute = (choice: RouteChoice) => {
+    setActiveRoute(choice);
+    if (choice === "alternate")
+      setLayers((prev) => ({ ...prev, alternate: true }));
+  };
+
+  // Adopt the alternate into the working checkpoint set. From here the route,
+  // profile and timeline all follow the bypass until reverted.
+  const commitRoute = () => {
+    setPreCommit(stations);
+    setStations(commitAlternateRoute(stations, plan.originLat, plan.originLng));
+    setActiveRoute("primary");
+    setLayers((prev) => ({ ...prev, alternate: false }));
+  };
+
+  const revertRoute = () => {
+    if (preCommit) setStations(preCommit);
+    setPreCommit(null);
+  };
+
+  // The alternate overlay shows when explicitly toggled or when it is the
+  // previewed line; the comparison panel lists it regardless.
+  const showAlternate =
+    !committed && (layers.alternate || activeRoute === "alternate");
 
   const pickStation = (id: string) => {
     const station = stations.find((s) => s.id === id);
@@ -134,7 +172,8 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
             distanceKm={plan.chartDistanceKm}
             originLat={plan.originLat}
             originLng={plan.originLng}
-            alternate={layers.alternate ? alternate : null}
+            alternate={showAlternate ? alternate : null}
+            activeRoute={activeRoute}
             weather={plan.weather}
             risks={plan.risks}
             partyT={partyT}
@@ -172,8 +211,14 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
         stations={stations}
         selectedId={selected.id}
         onSelect={setSelectedId}
-        alternate={layers.alternate ? alternate : null}
+        alternate={alternate}
         partyT={partyT}
+        activeRoute={activeRoute}
+        onSelectRoute={canEdit ? selectRoute : undefined}
+        committed={committed}
+        onCommitRoute={canEdit ? commitRoute : undefined}
+        onRevertRoute={canEdit ? revertRoute : undefined}
+        hazardName={hazardName}
       />
     </div>
   );
