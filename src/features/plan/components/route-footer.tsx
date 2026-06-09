@@ -69,19 +69,6 @@ export function RouteFooter({
             partyT={partyT}
           />
         </div>
-        <div className="mt-1 flex justify-between">
-          {plan.stations.map((s) => (
-            <Text
-              key={s.id}
-              variant="caption"
-              as="span"
-              tone="tertiary"
-              className="truncate font-mono text-3xs uppercase"
-            >
-              {s.name.split(" ")[0]}
-            </Text>
-          ))}
-        </div>
       </div>
 
       <div className="w-64 flex-none border-l border-border p-4">
