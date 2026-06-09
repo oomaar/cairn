@@ -88,6 +88,10 @@ export function getPerson(id: Id): Person | undefined {
   return indexes().personById.get(id);
 }
 
+export function listPeople(): Person[] {
+  return getUniverse().people;
+}
+
 // ── Relationships ──────────────────────────────────────────────────────────
 
 export function getLeader(expeditionId: Id): Person | undefined {
