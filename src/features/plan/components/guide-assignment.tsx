@@ -3,13 +3,7 @@
 import { useState } from "react";
 import { Avatar, Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import {
-  getExpedition,
-  getPerson,
-  listExpeditions,
-  listPeople,
-  type Tone,
-} from "@/universe";
+import { getPerson, listExpeditions, listPeople, type Tone } from "@/universe";
 
 type AvatarTone = "amber" | "olive" | "slate" | "quiet";
 const avatarTone = (tone?: Tone): AvatarTone =>
@@ -23,17 +17,19 @@ const avatarTone = (tone?: Tone): AvatarTone =>
 
 interface GuideAssignmentProps {
   expeditionId: string;
+  leaderId: string;
   canManage: boolean;
+  onReassign: (personId: string) => void;
 }
 
 /** Field leader (guide) assignment — read-only, or reassignable from the
  *  available guides when the role can manage the roster. */
 export function GuideAssignment({
   expeditionId,
+  leaderId,
   canManage,
+  onReassign,
 }: GuideAssignmentProps) {
-  const expedition = getExpedition(expeditionId);
-  const [leaderId, setLeaderId] = useState<string>(expedition?.leaderId ?? "");
   const [picking, setPicking] = useState(false);
 
   const leader = getPerson(leaderId);
@@ -96,7 +92,7 @@ export function GuideAssignment({
                 <button
                   type="button"
                   onClick={() => {
-                    setLeaderId(guide.id);
+                    onReassign(guide.id);
                     setPicking(false);
                   }}
                   aria-pressed={selected}
