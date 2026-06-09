@@ -178,6 +178,55 @@ export function reindexStations(
   });
 }
 
+/**
+ * Re-sequence the checkpoints (move one from `fromIndex` to `toIndex`), then
+ * recompute distance (cumulative along the new order), ETA (re-spread across
+ * the time window), and the derived fields — so the route, profile and
+ * timeline all reflect the new sequence.
+ */
+export function reorderStations(
+  stations: PlanStation[],
+  fromIndex: number,
+  toIndex: number,
+  chartDistanceKm: number,
+  originLat: number,
+  originLng: number,
+): PlanStation[] {
+  if (
+    fromIndex === toIndex ||
+    toIndex < 0 ||
+    toIndex >= stations.length ||
+    fromIndex < 0 ||
+    fromIndex >= stations.length
+  ) {
+    return stations;
+  }
+  const arr = [...stations];
+  const [moved] = arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, moved);
+
+  const lengths = [0];
+  for (let i = 1; i < arr.length; i++) {
+    lengths[i] =
+      lengths[i - 1] +
+      Math.hypot(arr[i].x - arr[i - 1].x, arr[i].y - arr[i - 1].y);
+  }
+  const total = lengths[lengths.length - 1] || 1;
+  const minutes = arr.map((s) => etaToMinutes(s.eta));
+  const lo = Math.min(...minutes);
+  const hi = Math.max(...minutes);
+
+  const resequenced = arr.map((s, i) => {
+    const f = lengths[i] / total;
+    return {
+      ...s,
+      km: Math.round(f * chartDistanceKm * 10) / 10,
+      eta: minutesToEta(lo + f * (hi - lo)),
+    };
+  });
+  return reindexStations(resequenced, originLat, originLng);
+}
+
 /** Insert a new checkpoint midway through the segment after `afterIndex`,
  *  interpolating position, distance, terrain elevation and ETA. */
 export function insertCheckpoint(
