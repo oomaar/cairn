@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Text } from "@/components/ui";
 import { useNavigation } from "@/features/navigation";
-import { useCan } from "@/features/session";
+import { useCan, useSession } from "@/features/session";
 import {
   buildAlternateRoute,
   buildRoutePlan,
@@ -23,6 +23,9 @@ import { StationDetail } from "./station-detail";
 import { RouteTimeline } from "./route-timeline";
 import { RouteFooter } from "./route-footer";
 import type { RouteChoice } from "./route-comparison";
+import { PlanningNotes } from "./planning-notes";
+import { buildPlanningNotes, makeNote } from "../planning-notes.utils";
+import type { PlanningNote } from "../planning-notes.types";
 
 const INITIAL_LAYERS: ChartLayers = {
   terrain: true,
@@ -48,6 +51,7 @@ function initialStationId(stations: PlanStation[]): string {
  */
 function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
   const canEdit = useCan("routes:edit");
+  const { currentUser } = useSession();
   const [stations, setStations] = useState<PlanStation[]>(plan.stations);
   const [selectedId, setSelectedId] = useState(() =>
     initialStationId(plan.stations),
@@ -57,6 +61,11 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
   // When the alternate is adopted, the working set follows it; we snapshot the
   // pre-commit checkpoints so the planner can revert.
   const [preCommit, setPreCommit] = useState<PlanStation[] | null>(null);
+  // The route's planning log — seeded history plus anything filed this session.
+  const [notes, setNotes] = useState<PlanningNote[]>(() =>
+    buildPlanningNotes(plan.expeditionId, plan.stations),
+  );
+  const noteSeq = useRef(0);
   const chartRef = useRef<ChartHandle>(null);
   const partyT = usePartyProgress(stations);
 
@@ -103,6 +112,15 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
     if (!station) return;
     setSelectedId(id);
     chartRef.current?.focusOn(station.x, station.y);
+  };
+
+  const addNote = (body: string, checkpointId: string | null) => {
+    noteSeq.current += 1;
+    const topOrder = notes.reduce((max, n) => Math.max(max, n.order), 0);
+    setNotes((prev) => [
+      makeNote(currentUser, body, checkpointId, topOrder, noteSeq.current),
+      ...prev,
+    ]);
   };
 
   const addCheckpoint = () => {
@@ -157,9 +175,17 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
       <SheetMeta plan={plan} />
 
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-44 flex-none flex-col overflow-y-auto border-r border-border bg-surface">
+        <aside className="flex w-52 flex-none flex-col overflow-y-auto border-r border-border bg-surface">
           <StationSearch stations={stations} onPick={pickStation} />
           <PlottingTools layers={layers} onToggle={toggleLayer} />
+          <span className="mx-4 my-1 h-px bg-border" />
+          <PlanningNotes
+            notes={notes}
+            stations={stations}
+            selectedId={selected.id}
+            onSelectCheckpoint={pickStation}
+            onAdd={canEdit ? addNote : undefined}
+          />
         </aside>
 
         <div className="relative min-w-0 flex-1 overflow-hidden">
