@@ -2,17 +2,17 @@
 
 import { Avatar, Icon, Text, buttonVariants } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useCan } from "@/features/session";
 import {
   getExpedition,
   getGearManifest,
   getIncidents,
   getLeader,
-  getRoster,
   getWeather,
   listRisks,
-  type ExpeditionRole,
   type Tone,
 } from "@/universe";
+import { CrewManager } from "./crew-manager";
 
 const TONE_DOT: Record<Tone, string> = {
   danger: "bg-danger",
@@ -33,11 +33,6 @@ const TONE_TEXT: Record<Tone, string> = {
   amber: "text-amber-bright",
   olive: "text-olive-bright",
   quiet: "text-fg-4",
-};
-const ROLE_LABEL: Record<ExpeditionRole, string> = {
-  "field-leader": "Lead",
-  "assistant-lead": "Assist",
-  participant: "Member",
 };
 type AvatarTone = "amber" | "olive" | "slate" | "quiet";
 const avatarTone = (tone?: Tone): AvatarTone =>
@@ -116,11 +111,11 @@ export function ExpeditionDetail({
   onClose,
   onOpenRoute,
 }: ExpeditionDetailProps) {
+  const canManage = useCan("roster:manage");
   const expedition = getExpedition(expeditionId);
   if (!expedition) return null;
 
   const leader = getLeader(expeditionId);
-  const roster = getRoster(expeditionId);
   const gear = getGearManifest(expeditionId);
   const risks = listRisks({ expeditionId });
   const weather = getWeather(expeditionId);
@@ -214,35 +209,12 @@ export function ExpeditionDetail({
             </Section>
           )}
 
-          {/* Crew */}
-          <Section title="Crew" count={roster.length}>
-            <ul className="flex flex-col gap-1.5">
-              {roster.map(({ assignment, person }) => (
-                <li key={assignment.id} className="flex items-center gap-2.5">
-                  <Avatar
-                    initials={person.initials}
-                    size="sm"
-                    tone={avatarTone(person.tone)}
-                  />
-                  <Text
-                    variant="caption"
-                    as="span"
-                    className="flex-1 truncate text-fg-1"
-                  >
-                    {person.name}
-                  </Text>
-                  <Text
-                    variant="caption"
-                    as="span"
-                    tone="tertiary"
-                    className="font-mono uppercase"
-                  >
-                    {ROLE_LABEL[assignment.role]}
-                  </Text>
-                </li>
-              ))}
-            </ul>
-          </Section>
+          {/* Crew — read-only, or an assignment manager when allowed */}
+          <CrewManager
+            expeditionId={expeditionId}
+            capacity={expedition.capacity}
+            canManage={canManage}
+          />
 
           {/* Equipment */}
           {gear.length > 0 && (
