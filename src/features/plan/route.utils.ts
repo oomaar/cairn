@@ -275,21 +275,65 @@ export interface AlternateRoute {
   note: string;
 }
 
+/** Detour geometry shared by the alternate preview and its commit, so the line
+ *  the planner compares is exactly the line they adopt. */
+const ALT_EXTRA_KM = 3.4;
+const ALT_GAIN_CUT = 0.21;
+const ALT_DETOUR_Y = 90;
+const ALT_DETOUR_SPAN = 1.5;
+
+const detourProximity = (i: number, hazardIndex: number): number =>
+  Math.max(0, 1 - Math.abs(i - hazardIndex) / ALT_DETOUR_SPAN);
+
 /** A deterministic weather alternate: detours below the exposed pass — longer,
  *  lower, hazard-avoiding. Derived from the primary plan, no randomness. */
 export function buildAlternateRoute(plan: RoutePlan): AlternateRoute | null {
   const hazardIndex = plan.stations.findIndex((s) => s.hazard);
   if (hazardIndex === -1) return null;
-  const points = plan.stations.map((s, i) => {
-    const proximity = Math.max(0, 1 - Math.abs(i - hazardIndex) / 1.5);
-    return { x: s.x, y: Math.round(s.y + proximity * 90) };
-  });
+  const points = plan.stations.map((s, i) => ({
+    x: s.x,
+    y: Math.round(s.y + detourProximity(i, hazardIndex) * ALT_DETOUR_Y),
+  }));
   return {
     points,
-    distanceKm: Math.round((plan.chartDistanceKm + 3.4) * 10) / 10,
-    gainM: plan.peakElevationM - Math.round(plan.peakElevationM * 0.21),
+    distanceKm: Math.round((plan.chartDistanceKm + ALT_EXTRA_KM) * 10) / 10,
+    gainM: plan.totalGainM - Math.round(plan.totalGainM * ALT_GAIN_CUT),
     note: "Avoids the exposed pass — viable weather alternate.",
   };
+}
+
+/**
+ * Materialize the weather alternate into the working checkpoint set: bend the
+ * line below the pass, shed elevation near it, clear the bypassed hazard, and
+ * stretch the distance to the alternate's length — then recompute every derived
+ * field so the chart, profile and timeline all follow the adopted line.
+ */
+export function commitAlternateRoute(
+  stations: PlanStation[],
+  originLat: number,
+  originLng: number,
+): PlanStation[] {
+  const hazardIndex = stations.findIndex((s) => s.hazard);
+  if (hazardIndex === -1) return stations;
+
+  const total = stations[stations.length - 1]?.km ?? 0;
+  const target = Math.round((total + ALT_EXTRA_KM) * 10) / 10;
+  const scale = total > 0 ? target / total : 1;
+
+  const detoured = stations.map((s, i) => {
+    const proximity = detourProximity(i, hazardIndex);
+    const bypassed = proximity > 0;
+    return {
+      ...s,
+      y: Math.round(s.y + proximity * ALT_DETOUR_Y),
+      elevationM: Math.round(s.elevationM - proximity * s.elevationM * 0.28),
+      km: Math.round(s.km * scale * 10) / 10,
+      hazard: bypassed ? false : s.hazard,
+      alert: bypassed ? null : s.alert,
+      name: i === hazardIndex ? `${s.name} bypass` : s.name,
+    };
+  });
+  return reindexStations(detoured, originLat, originLng);
 }
 
 /** Build the complete route plan for an expedition from the universe. Pure and
