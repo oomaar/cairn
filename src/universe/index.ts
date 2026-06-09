@@ -22,6 +22,7 @@ export {
   getExpedition,
   getPerson,
   listPeople,
+  listGear,
   getLeader,
   getRoster,
   getExpeditionsForPerson,

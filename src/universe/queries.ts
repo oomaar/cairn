@@ -92,6 +92,10 @@ export function listPeople(): Person[] {
   return getUniverse().people;
 }
 
+export function listGear(): GearItem[] {
+  return getUniverse().gear;
+}
+
 // ── Relationships ──────────────────────────────────────────────────────────
 
 export function getLeader(expeditionId: Id): Person | undefined {
