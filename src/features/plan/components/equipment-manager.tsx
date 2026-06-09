@@ -3,19 +3,14 @@
 import { useState } from "react";
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import {
-  getGearManifest,
-  listGear,
-  type GearItem,
-  type GearManifestEntry,
-} from "@/universe";
-
-const clamp = (v: number, lo: number, hi: number) =>
-  Math.max(lo, Math.min(hi, v));
+import { listGear, type GearItem, type GearManifestEntry } from "@/universe";
 
 interface EquipmentManagerProps {
-  expeditionId: string;
+  manifest: GearManifestEntry[];
   canManage: boolean;
+  onAdd: (item: GearItem) => void;
+  onRemove: (itemId: string) => void;
+  onSetQty: (itemId: string, qty: number) => void;
 }
 
 function StepButton({
@@ -44,13 +39,7 @@ function StepButton({
 
 /** Equipment requirements — read-only manifest, or an editable requirements
  *  manager (adjust quantities, remove, add from the catalog) when allowed. */
-export function EquipmentManager({
-  expeditionId,
-  canManage,
-}: EquipmentManagerProps) {
-  const [manifest, setManifest] = useState<GearManifestEntry[]>(() =>
-    getGearManifest(expeditionId),
-  );
+export function EquipmentManager({ manifest, canManage, onAdd, onRemove, onSetQty }: EquipmentManagerProps) {
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -65,36 +54,6 @@ export function EquipmentManager({
         g.name.toLowerCase().includes(q) ||
         g.category.toLowerCase().includes(q)),
   );
-
-  const setQty = (itemId: string, qty: number) =>
-    setManifest((prev) =>
-      prev.map((m) =>
-        m.item.id === itemId
-          ? {
-              ...m,
-              allocation: {
-                ...m.allocation,
-                quantity: clamp(qty, 1, m.item.total),
-              },
-            }
-          : m,
-      ),
-    );
-  const remove = (itemId: string) =>
-    setManifest((prev) => prev.filter((m) => m.item.id !== itemId));
-  const add = (item: GearItem) =>
-    setManifest((prev) => [
-      ...prev,
-      {
-        allocation: {
-          id: `alloc-${item.id}-${expeditionId}`,
-          gearItemId: item.id,
-          expeditionId,
-          quantity: 1,
-        },
-        item,
-      },
-    ]);
 
   return (
     <section className="border-t border-border-soft px-5 py-4">
@@ -146,7 +105,7 @@ export function EquipmentManager({
                     label={`Fewer ${item.name}`}
                     icon="minus"
                     disabled={allocation.quantity <= 1}
-                    onClick={() => setQty(item.id, allocation.quantity - 1)}
+                    onClick={() => onSetQty(item.id, allocation.quantity - 1)}
                   />
                   <Text
                     variant="caption"
@@ -159,12 +118,12 @@ export function EquipmentManager({
                     label={`More ${item.name}`}
                     icon="plus"
                     disabled={allocation.quantity >= item.total}
-                    onClick={() => setQty(item.id, allocation.quantity + 1)}
+                    onClick={() => onSetQty(item.id, allocation.quantity + 1)}
                   />
                 </span>
                 <button
                   type="button"
-                  onClick={() => remove(item.id)}
+                  onClick={() => onRemove(item.id)}
                   aria-label={`Remove ${item.name}`}
                   className="grid size-5 flex-none place-items-center rounded text-fg-4 transition-colors hover:text-danger-bright"
                 >
@@ -209,7 +168,7 @@ export function EquipmentManager({
                 <li key={item.id}>
                   <button
                     type="button"
-                    onClick={() => add(item)}
+                    onClick={() => onAdd(item)}
                     className={cn(
                       "flex w-full items-center gap-2.5 rounded px-1.5 py-1.5 text-left transition-colors hover:bg-raised",
                     )}
