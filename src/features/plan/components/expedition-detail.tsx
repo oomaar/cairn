@@ -1,13 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { Icon, Text, buttonVariants } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useCan } from "@/features/session";
 import {
   getExpedition,
+  getGearManifest,
   getIncidents,
+  getRoster,
   getWeather,
   listRisks,
+  type ExpeditionRole,
+  type GearItem,
+  type GearManifestEntry,
+  type Person,
+  type RosterEntry,
   type Tone,
 } from "@/universe";
 import { CrewManager } from "./crew-manager";
@@ -104,12 +112,99 @@ export function ExpeditionDetail({
 }: ExpeditionDetailProps) {
   const canManage = useCan("roster:manage");
   const canManageEquipment = useCan("equipment:manage");
+  const [leaderId, setLeaderId] = useState(
+    () => getExpedition(expeditionId)?.leaderId ?? "",
+  );
+  const [roster, setRoster] = useState<RosterEntry[]>(() =>
+    getRoster(expeditionId),
+  );
+  const [manifest, setManifest] = useState<GearManifestEntry[]>(() =>
+    getGearManifest(expeditionId),
+  );
   const expedition = getExpedition(expeditionId);
   if (!expedition) return null;
 
   const risks = listRisks({ expeditionId });
   const weather = getWeather(expeditionId);
   const incidents = getIncidents(expeditionId);
+
+  const addCrew = (person: Person) =>
+    setRoster((prev) => [
+      ...prev,
+      {
+        assignment: {
+          id: `asg-${expeditionId}-${person.id}`,
+          expeditionId,
+          personId: person.id,
+          role: "participant",
+        },
+        person,
+      },
+    ]);
+  const removeCrew = (personId: string) =>
+    setRoster((prev) => prev.filter((r) => r.person.id !== personId));
+  const setCrewRole = (personId: string, role: ExpeditionRole) =>
+    setRoster((prev) =>
+      prev.map((r) =>
+        r.person.id === personId
+          ? { ...r, assignment: { ...r.assignment, role } }
+          : r,
+      ),
+    );
+  const addGear = (item: GearItem) =>
+    setManifest((prev) => [
+      ...prev,
+      {
+        allocation: {
+          id: `alloc-${item.id}-${expeditionId}`,
+          gearItemId: item.id,
+          expeditionId,
+          quantity: 1,
+        },
+        item,
+      },
+    ]);
+  const removeGear = (itemId: string) =>
+    setManifest((prev) => prev.filter((m) => m.item.id !== itemId));
+  const setGearQty = (itemId: string, qty: number) =>
+    setManifest((prev) =>
+      prev.map((m) =>
+        m.item.id === itemId
+          ? {
+              ...m,
+              allocation: {
+                ...m.allocation,
+                quantity: Math.max(1, Math.min(qty, m.item.total)),
+              },
+            }
+          : m,
+      ),
+    );
+
+  // Live readiness — recomputes as the draft (guide / crew / equipment) changes.
+  const crewRatio =
+    expedition.capacity > 0
+      ? Math.min(1, roster.length / expedition.capacity)
+      : 0;
+  const highRisk = risks.some((r) => r.level === "high");
+  const factors = [
+    { label: "Field leader assigned", value: leaderId ? 1 : 0 },
+    {
+      label: `Crew filled · ${roster.length}/${expedition.capacity}`,
+      value: crewRatio,
+    },
+    {
+      label: `Equipment · ${manifest.length} items`,
+      value: manifest.length >= 4 ? 1 : manifest.length / 4,
+    },
+    {
+      label: highRisk ? "High risk unresolved" : "Risks under control",
+      value: highRisk ? 0.4 : 1,
+    },
+  ];
+  const readiness = Math.round(
+    (factors.reduce((s, f) => s + f.value, 0) / factors.length) * 100,
+  );
 
   const progress =
     expedition.status === "in-field"
@@ -174,24 +269,80 @@ export function ExpeditionDetail({
             />
             <Stat label="Duration" value={`${expedition.dayTotal} days`} />
             <Stat label="Grade" value={capitalize(expedition.grade)} />
-            <Stat label="Readiness" value={`${expedition.readiness}%`} />
+            <Stat label="Readiness" value={`${readiness}%`} />
             <Stat label="Progress" value={progress} />
           </div>
 
+          {/* Readiness — live, derived from the draft */}
+          <Section title="Readiness">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-1 gap-0.5">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      "h-1.5 flex-1 rounded-[1px]",
+                      i < Math.round(readiness / 10)
+                        ? "bg-accent"
+                        : "bg-border-strong",
+                    )}
+                  />
+                ))}
+              </div>
+              <Text
+                variant="body-sm"
+                as="span"
+                className="font-mono font-semibold tabular-nums"
+              >
+                {readiness}%
+              </Text>
+            </div>
+            <ul className="mt-3 flex flex-col gap-1.5">
+              {factors.map((f) => (
+                <li key={f.label} className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "size-1.5 flex-none rounded-full",
+                      f.value >= 1
+                        ? "bg-ok"
+                        : f.value > 0
+                          ? "bg-warn"
+                          : "bg-danger",
+                    )}
+                  />
+                  <Text variant="caption" as="span" tone="secondary">
+                    {f.label}
+                  </Text>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
           {/* Field leader — read-only, or reassignable when allowed */}
-          <GuideAssignment expeditionId={expeditionId} canManage={canManage} />
+          <GuideAssignment
+            expeditionId={expeditionId}
+            leaderId={leaderId}
+            canManage={canManage}
+            onReassign={setLeaderId}
+          />
 
           {/* Crew — read-only, or an assignment manager when allowed */}
           <CrewManager
-            expeditionId={expeditionId}
+            roster={roster}
             capacity={expedition.capacity}
             canManage={canManage}
+            onAdd={addCrew}
+            onRemove={removeCrew}
+            onSetRole={setCrewRole}
           />
 
           {/* Equipment — read-only manifest, or requirements manager */}
           <EquipmentManager
-            expeditionId={expeditionId}
+            manifest={manifest}
             canManage={canManageEquipment}
+            onAdd={addGear}
+            onRemove={removeGear}
+            onSetQty={setGearQty}
           />
 
           {/* Risks */}
