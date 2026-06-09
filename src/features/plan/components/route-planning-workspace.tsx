@@ -25,7 +25,7 @@ import { RouteFooter } from "./route-footer";
 const INITIAL_LAYERS: ChartLayers = {
   terrain: true,
   water: true,
-  weather: false,
+  weather: true,
   risk: true,
   alternate: false,
 };
@@ -135,6 +135,7 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
             originLat={plan.originLat}
             originLng={plan.originLng}
             alternate={layers.alternate ? alternate : null}
+            weather={plan.weather}
             partyT={partyT}
           />
         </div>
