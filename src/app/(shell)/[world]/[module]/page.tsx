@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { WORLD_BY_KEY, WORLDS, type WorldKey } from "@/features/theme";
 import { ModulePlaceholder } from "@/features/shell";
-import { RoutePlanningWorkspace } from "@/features/plan";
+import { PlanExpeditions, RoutePlanningWorkspace } from "@/features/plan";
 
 /** Pre-render every world/module route as static content. */
 export function generateStaticParams() {
@@ -15,6 +15,7 @@ export function generateStaticParams() {
  *  back to the placeholder while it's still being built out. */
 const WORKSPACES: Record<string, () => ReactNode> = {
   "plan/route": () => <RoutePlanningWorkspace />,
+  "plan/expeditions": () => <PlanExpeditions />,
 };
 
 /** A module workspace. Validates the world+module, then renders the real
