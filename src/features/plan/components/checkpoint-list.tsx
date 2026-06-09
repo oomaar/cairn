@@ -16,6 +16,7 @@ interface CheckpointListProps {
   /** Provided only when the active role may edit the route. */
   onAdd?: () => void;
   onRemove?: (id: string) => void;
+  onMove?: (fromIndex: number, toIndex: number) => void;
 }
 
 /** The checkpoint manifest for the route — select to inspect; add/remove when
@@ -26,6 +27,7 @@ export function CheckpointList({
   onSelect,
   onAdd,
   onRemove,
+  onMove,
 }: CheckpointListProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -56,9 +58,10 @@ export function CheckpointList({
       </div>
 
       <ul className="min-h-0 flex-1 overflow-y-auto pb-2">
-        {stations.map((s) => {
+        {stations.map((s, i) => {
           const sel = s.id === selectedId;
           const removable = onRemove && stations.length > 2;
+          const editable = !!onMove || !!removable;
           return (
             <li key={s.id} className="group relative">
               <button
@@ -67,6 +70,7 @@ export function CheckpointList({
                 aria-pressed={sel}
                 className={cn(
                   "flex w-full items-center gap-2.5 border-l-2 px-3.5 py-2 text-left transition-colors",
+                  editable && "pr-20",
                   sel
                     ? "border-accent bg-raised"
                     : "border-transparent hover:bg-raised/60",
@@ -105,16 +109,44 @@ export function CheckpointList({
                   </Text>
                 </span>
               </button>
-              {removable && (
-                <button
-                  type="button"
-                  onClick={() => onRemove(s.id)}
-                  title={`Remove ${s.name}`}
-                  aria-label={`Remove ${s.name}`}
-                  className="absolute right-2 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-fg-4 opacity-0 transition-opacity hover:text-danger-bright focus-visible:opacity-100 group-hover:opacity-100"
-                >
-                  <Icon name="x" size={13} />
-                </button>
+              {editable && (
+                <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                  {onMove && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={i === 0}
+                        onClick={() => onMove(i, i - 1)}
+                        title="Move up"
+                        aria-label={`Move ${s.name} up`}
+                        className="grid size-6 place-items-center rounded text-fg-4 transition-colors hover:text-fg-1 disabled:pointer-events-none disabled:opacity-25"
+                      >
+                        <Icon name="chevD" size={13} className="rotate-180" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={i === stations.length - 1}
+                        onClick={() => onMove(i, i + 1)}
+                        title="Move down"
+                        aria-label={`Move ${s.name} down`}
+                        className="grid size-6 place-items-center rounded text-fg-4 transition-colors hover:text-fg-1 disabled:pointer-events-none disabled:opacity-25"
+                      >
+                        <Icon name="chevD" size={13} />
+                      </button>
+                    </>
+                  )}
+                  {removable && (
+                    <button
+                      type="button"
+                      onClick={() => onRemove(s.id)}
+                      title={`Remove ${s.name}`}
+                      aria-label={`Remove ${s.name}`}
+                      className="grid size-6 place-items-center rounded text-fg-4 transition-colors hover:text-danger-bright"
+                    >
+                      <Icon name="x" size={13} />
+                    </button>
+                  )}
+                </div>
               )}
             </li>
           );
