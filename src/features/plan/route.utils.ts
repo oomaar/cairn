@@ -42,7 +42,10 @@ export function contourRing(
   for (let k = 0; k <= steps; k++) {
     const a = (k / steps) * Math.PI * 2;
     const rr =
-      r * (1 + wobble * Math.sin(a * 3 + seed * 1.7) + wobble * 0.55 * Math.cos(a * 2 - seed));
+      r *
+      (1 +
+        wobble * Math.sin(a * 3 + seed * 1.7) +
+        wobble * 0.55 * Math.cos(a * 2 - seed));
     const x = cx + rr * Math.cos(a);
     const y = cy + rr * Math.sin(a) * squash;
     points.push(`${x.toFixed(1)} ${y.toFixed(1)}`);
@@ -123,6 +126,93 @@ export function chartPointAtKm(
   return { x: last.x, y: last.y };
 }
 
+/** Interpolated terrain elevation at a distance (km) along the route. */
+export function elevAtKm(
+  profile: number[],
+  distanceKm: number,
+  km: number,
+): number {
+  const f = distanceKm > 0 ? Math.max(0, Math.min(1, km / distanceKm)) : 0;
+  const idx = f * (profile.length - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  return Math.round(profile[lo] + (profile[hi] - profile[lo]) * (idx - lo));
+}
+
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+function etaToMinutes(eta: string): number {
+  const m = eta.match(/(\d{1,2}):(\d{2})/);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+}
+function minutesToEta(mins: number): string {
+  return `${pad(Math.floor(mins / 60) % 24)}:${pad(Math.round(mins % 60))}`;
+}
+
+/**
+ * Recompute the derived fields after the checkpoint set changes: index,
+ * segment distance, gradient, and coordinates (all relative to neighbours).
+ */
+export function reindexStations(
+  stations: PlanStation[],
+  originLat: number,
+  originLng: number,
+): PlanStation[] {
+  return stations.map((s, i) => {
+    const prev = stations[i - 1];
+    const segmentKm = prev ? Math.round((s.km - prev.km) * 10) / 10 : 0;
+    const gradientPct =
+      prev && segmentKm > 0
+        ? Math.round(
+            ((s.elevationM - prev.elevationM) / (segmentKm * 1000)) * 100,
+          )
+        : 0;
+    return {
+      ...s,
+      index: i,
+      segmentKm,
+      gradientPct,
+      coordsLabel: `${(originLat + i * 0.012).toFixed(4)}°, ${(originLng + i * 0.009).toFixed(4)}°`,
+    };
+  });
+}
+
+/** Insert a new checkpoint midway through the segment after `afterIndex`,
+ *  interpolating position, distance, terrain elevation and ETA. */
+export function insertCheckpoint(
+  stations: PlanStation[],
+  afterIndex: number,
+  profile: number[],
+  distanceKm: number,
+  originLat: number,
+  originLng: number,
+): PlanStation[] {
+  const i = Math.max(0, Math.min(afterIndex, stations.length - 2));
+  const a = stations[i];
+  const b = stations[i + 1];
+  const km = Math.round(((a.km + b.km) / 2) * 10) / 10;
+  const created: PlanStation = {
+    id: `cp-new-${a.id}-${b.id}`,
+    index: 0,
+    name: "New checkpoint",
+    km,
+    elevationM: elevAtKm(profile, distanceKm, km),
+    eta: minutesToEta((etaToMinutes(a.eta) + etaToMinutes(b.eta)) / 2),
+    type: "camp",
+    status: "ahead",
+    hazard: false,
+    segmentKm: 0,
+    gradientPct: 0,
+    coordsLabel: "",
+    x: (a.x + b.x) / 2,
+    y: (a.y + b.y) / 2,
+    alert: null,
+  };
+  const next = [...stations.slice(0, i + 1), created, ...stations.slice(i + 1)];
+  return reindexStations(next, originLat, originLng);
+}
+
 export interface AlternateRoute {
   points: { x: number; y: number }[];
   distanceKm: number;
@@ -169,7 +259,9 @@ export function buildRoutePlan(expeditionId: string): RoutePlan | null {
     const segmentKm = prev ? Math.round((cp.km - prev.km) * 10) / 10 : 0;
     const gradientPct =
       prev && segmentKm > 0
-        ? Math.round(((cp.elevationM - prev.elevationM) / (segmentKm * 1000)) * 100)
+        ? Math.round(
+            ((cp.elevationM - prev.elevationM) / (segmentKm * 1000)) * 100,
+          )
         : 0;
     const alert = alerts.find((a) => a.checkpointId === cp.id);
     return {

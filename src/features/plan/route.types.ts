@@ -19,6 +19,8 @@ export interface PlanStation {
   x: number;
   y: number;
   alert: { title: string; detail: string } | null;
+  /** Planner's note; falls back to a type-derived default when empty. */
+  note?: string;
 }
 
 /** The full route plan for an expedition — everything the workspace renders. */
