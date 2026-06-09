@@ -1,18 +1,18 @@
 "use client";
 
-import { Avatar, Icon, Text, buttonVariants } from "@/components/ui";
+import { Icon, Text, buttonVariants } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useCan } from "@/features/session";
 import {
   getExpedition,
   getGearManifest,
   getIncidents,
-  getLeader,
   getWeather,
   listRisks,
   type Tone,
 } from "@/universe";
 import { CrewManager } from "./crew-manager";
+import { GuideAssignment } from "./guide-assignment";
 
 const TONE_DOT: Record<Tone, string> = {
   danger: "bg-danger",
@@ -34,15 +34,6 @@ const TONE_TEXT: Record<Tone, string> = {
   olive: "text-olive-bright",
   quiet: "text-fg-4",
 };
-type AvatarTone = "amber" | "olive" | "slate" | "quiet";
-const avatarTone = (tone?: Tone): AvatarTone =>
-  tone === "amber"
-    ? "amber"
-    : tone === "slate"
-      ? "slate"
-      : tone === "olive"
-        ? "olive"
-        : "quiet";
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function Section({
@@ -115,7 +106,6 @@ export function ExpeditionDetail({
   const expedition = getExpedition(expeditionId);
   if (!expedition) return null;
 
-  const leader = getLeader(expeditionId);
   const gear = getGearManifest(expeditionId);
   const risks = listRisks({ expeditionId });
   const weather = getWeather(expeditionId);
@@ -188,26 +178,8 @@ export function ExpeditionDetail({
             <Stat label="Progress" value={progress} />
           </div>
 
-          {/* Leader */}
-          {leader && (
-            <Section title="Field leader">
-              <div className="flex items-center gap-2.5">
-                <Avatar
-                  initials={leader.initials}
-                  size="md"
-                  tone={avatarTone(leader.tone)}
-                />
-                <div className="min-w-0">
-                  <Text variant="body-sm" as="p" className="truncate">
-                    {leader.name}
-                  </Text>
-                  <Text variant="caption" as="p" tone="tertiary">
-                    Expedition lead
-                  </Text>
-                </div>
-              </div>
-            </Section>
-          )}
+          {/* Field leader — read-only, or reassignable when allowed */}
+          <GuideAssignment expeditionId={expeditionId} canManage={canManage} />
 
           {/* Crew — read-only, or an assignment manager when allowed */}
           <CrewManager
