@@ -11,6 +11,7 @@ import { StationSearch } from "./station-search";
 import { PlottingTools } from "./plotting-tools";
 import { ChartCanvas, type ChartHandle } from "./chart-canvas";
 import { StationDetail } from "./station-detail";
+import { RouteTimeline } from "./route-timeline";
 import { RouteFooter } from "./route-footer";
 
 const INITIAL_LAYERS: ChartLayers = {
@@ -103,6 +104,12 @@ export function RoutePlanningWorkspace() {
 
         <StationDetail station={selected} />
       </div>
+
+      <RouteTimeline
+        stations={plan.stations}
+        selectedId={selected.id}
+        onSelect={setSelectedId}
+      />
 
       <RouteFooter
         plan={plan}
