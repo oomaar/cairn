@@ -21,6 +21,7 @@ export {
   listExpeditions,
   getExpedition,
   getPerson,
+  listPeople,
   getLeader,
   getRoster,
   getExpeditionsForPerson,
