@@ -2,6 +2,7 @@ import { Text } from "@/components/ui";
 import type { AlternateRoute } from "../route.utils";
 import type { PlanStation, RoutePlan } from "../route.types";
 import { ElevationProfile } from "./elevation-profile";
+import { RouteComparison, type RouteChoice } from "./route-comparison";
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
@@ -29,6 +30,12 @@ export function RouteFooter({
   onSelect,
   alternate,
   partyT,
+  activeRoute,
+  onSelectRoute,
+  committed,
+  onCommitRoute,
+  onRevertRoute,
+  hazardName,
 }: {
   plan: RoutePlan;
   stations: PlanStation[];
@@ -36,6 +43,12 @@ export function RouteFooter({
   onSelect: (id: string) => void;
   alternate: AlternateRoute | null;
   partyT: number;
+  activeRoute: RouteChoice;
+  onSelectRoute?: (choice: RouteChoice) => void;
+  committed: boolean;
+  onCommitRoute?: () => void;
+  onRevertRoute?: () => void;
+  hazardName?: string;
 }) {
   const hazardStation = stations.find((s) => s.hazard);
   return (
@@ -96,21 +109,16 @@ export function RouteFooter({
           />
         </div>
 
-        {alternate && (
-          <div className="mt-3 rounded-md border border-(--plan-sage) bg-olive-tint p-2.5">
-            <Text
-              variant="caption"
-              as="p"
-              className="font-mono uppercase tracking-[0.06em] text-(--plan-sage)"
-            >
-              Alternate · {alternate.distanceKm} km · ▲
-              {alternate.gainM.toLocaleString()} m
-            </Text>
-            <Text variant="caption" as="p" tone="secondary" className="mt-1">
-              {alternate.note}
-            </Text>
-          </div>
-        )}
+        <RouteComparison
+          plan={plan}
+          alternate={alternate}
+          active={activeRoute}
+          committed={committed}
+          onSelect={onSelectRoute}
+          onCommit={onCommitRoute}
+          onRevert={onRevertRoute}
+          hazardName={hazardName ?? hazardStation?.name}
+        />
       </div>
     </div>
   );
