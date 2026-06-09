@@ -4,8 +4,14 @@ import {
   getRoute,
   getWeather,
   listExpeditions,
+  listRisks,
 } from "@/universe";
-import type { PlanStation, PlanWeather, RoutePlan } from "./route.types";
+import type {
+  PlanRisk,
+  PlanStation,
+  PlanWeather,
+  RoutePlan,
+} from "./route.types";
 
 /** Chart viewBox + plotting margins. */
 export const CHART_W = 960;
@@ -342,6 +348,28 @@ export function buildRoutePlan(expeditionId: string): RoutePlan | null {
     detail: a.detail,
   }));
 
+  // Anchor each risk to a checkpoint: name match in the title, else the
+  // hazard checkpoint, else mid-route.
+  const fallback =
+    checkpoints.find((c) => c.hazard) ??
+    checkpoints[Math.floor(checkpoints.length / 2)];
+  const risks: PlanRisk[] = listRisks({ expeditionId }).map((r) => {
+    const titleLc = r.title.toLowerCase();
+    const matched = checkpoints.find((c) =>
+      titleLc.includes(c.name.toLowerCase()),
+    );
+    return {
+      id: r.id,
+      checkpointId: (matched ?? fallback)?.id ?? null,
+      level: r.level,
+      category: r.category,
+      tone: r.tone,
+      title: r.title,
+      detail: r.detail,
+      action: r.action,
+    };
+  });
+
   const sheetIndex = listExpeditions().findIndex((e) => e.id === expeditionId);
 
   return {
@@ -359,5 +387,6 @@ export function buildRoutePlan(expeditionId: string): RoutePlan | null {
     stations,
     elevationProfile: route.elevationProfile,
     weather,
+    risks,
   };
 }

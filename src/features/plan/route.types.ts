@@ -1,6 +1,8 @@
 import type {
   CheckpointStatus,
   CheckpointType,
+  RiskCategory,
+  RiskLevel,
   Tone,
   WeatherIcon,
 } from "@/universe";
@@ -14,6 +16,18 @@ export interface PlanWeather {
   title: string;
   place: string;
   detail: string;
+}
+
+/** A risk resolved for the chart, anchored to a checkpoint. */
+export interface PlanRisk {
+  id: string;
+  checkpointId: string | null;
+  level: RiskLevel;
+  category: RiskCategory;
+  tone: Tone;
+  title: string;
+  detail: string;
+  action: string;
 }
 
 /** A checkpoint resolved for the chart table: route metrics, a plotted chart
@@ -55,6 +69,7 @@ export interface RoutePlan {
   stations: PlanStation[];
   elevationProfile: number[];
   weather: PlanWeather[];
+  risks: PlanRisk[];
 }
 
 /** Toggleable chart overlays driven by the plotting tools. */
