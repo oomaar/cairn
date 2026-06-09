@@ -136,6 +136,7 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
             originLng={plan.originLng}
             alternate={layers.alternate ? alternate : null}
             weather={plan.weather}
+            risks={plan.risks}
             partyT={partyT}
           />
         </div>
