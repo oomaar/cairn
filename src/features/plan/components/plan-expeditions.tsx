@@ -17,6 +17,7 @@ import {
   type ExpeditionDraft,
 } from "../expedition-drafts";
 import { ExpeditionDetail } from "./expedition-detail";
+import { DraftDetail } from "./draft-detail";
 
 const STATUS_DOT: Record<Tone, string> = {
   danger: "bg-danger",
@@ -154,17 +155,23 @@ function ExpeditionSheet({
   );
 }
 
-/** A filed-this-session draft — display only (no universe record to open). */
+/** A filed-this-session draft card. Opens a summary dossier. */
 function DraftSheet({
   draft,
   index,
+  onOpen,
 }: {
   draft: ExpeditionDraft;
   index: number;
+  onOpen: () => void;
 }) {
   const leader = draft.leaderId ? getPerson(draft.leaderId) : undefined;
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-accent-line bg-surface">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex flex-col overflow-hidden rounded-lg border border-accent-line bg-surface text-left transition-colors hover:border-accent"
+    >
       <div className="relative h-24 border-b border-border-soft">
         <SheetThumb seed={index + 1} />
         <span className="absolute left-2.5 top-2 font-mono text-3xs uppercase tracking-[0.08em] text-fg-3">
@@ -213,7 +220,7 @@ function DraftSheet({
           </span>
         </div>
       </div>
-    </article>
+    </button>
   );
 }
 
@@ -224,6 +231,8 @@ export function PlanExpeditions() {
   const expeditions = listExpeditions();
   const { drafts } = useExpeditionDrafts();
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const openDraft = drafts.find((d) => d.id === draftId);
 
   const openRoute = (id: string) => {
     nav.focusExpedition(id);
@@ -267,6 +276,7 @@ export function PlanExpeditions() {
               key={draft.id}
               draft={draft}
               index={expeditions.length + i}
+              onOpen={() => setDraftId(draft.id)}
             />
           ))}
         </div>
@@ -278,6 +288,10 @@ export function PlanExpeditions() {
           onClose={() => setDetailId(null)}
           onOpenRoute={openRoute}
         />
+      )}
+
+      {openDraft && (
+        <DraftDetail draft={openDraft} onClose={() => setDraftId(null)} />
       )}
     </div>
   );
