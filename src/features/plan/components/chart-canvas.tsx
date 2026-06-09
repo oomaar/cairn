@@ -18,7 +18,12 @@ import {
   contourRing,
   type AlternateRoute,
 } from "../route.utils";
-import type { ChartLayers, PlanStation, PlanWeather } from "../route.types";
+import type {
+  ChartLayers,
+  PlanRisk,
+  PlanStation,
+  PlanWeather,
+} from "../route.types";
 import type { Tone } from "@/universe";
 
 interface ChartCanvasProps {
@@ -31,12 +36,13 @@ interface ChartCanvasProps {
   originLng: number;
   alternate: AlternateRoute | null;
   weather: PlanWeather[];
+  risks: PlanRisk[];
   /** Live party position as a fraction of total distance (0..1). */
   partyT: number;
 }
 
-/** Weather alert tone → plan-palette text color (drives fill/stroke too). */
-const WEATHER_TONE: Record<Tone, string> = {
+/** Alert tone → plan-palette text color (drives fill/stroke via currentColor). */
+const TONE_TEXT: Record<Tone, string> = {
   danger: "text-(--plan-signal)",
   warn: "text-accent-bright",
   slate: "text-(--plan-water-light)",
@@ -101,6 +107,7 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
       originLng,
       alternate,
       weather,
+      risks,
       partyT,
     },
     ref,
@@ -430,7 +437,7 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
                 const right = at.x > CHART_W * 0.5;
                 const boxX = right ? at.x - 152 : at.x + 14;
                 return (
-                  <g key={`wx-${w.id}`} className={WEATHER_TONE[w.tone]}>
+                  <g key={`wx-${w.id}`} className={TONE_TEXT[w.tone]}>
                     <circle
                       cx={at.x}
                       cy={at.y}
@@ -501,28 +508,57 @@ export const ChartCanvas = forwardRef<ChartHandle, ChartCanvasProps>(
           )}
 
           {layers.risk &&
-            stations
-              .filter((s) => s.hazard)
-              .map((s) => (
-                <g key={`hz${s.id}`}>
+            risks.map((r, ri) => {
+              const at =
+                stations.find((s) => s.id === r.checkpointId) ??
+                stations.find((s) => s.hazard) ??
+                stations[Math.floor(stations.length / 2)];
+              if (!at) return null;
+              const right = at.x > CHART_W * 0.5;
+              const boxX = right ? at.x - 154 : at.x + 16;
+              return (
+                <g key={`risk-${r.id}`} className={TONE_TEXT[r.tone]}>
                   <path
-                    d={contourRing(s.x, s.y, 72, 5, 0.7, 0.2)}
+                    d={contourRing(at.x, at.y, 78 + ri * 6, 5 + ri, 0.7, 0.2)}
+                    fill="currentColor"
+                    fillOpacity={0.07}
                     strokeWidth={1.3}
                     strokeDasharray="5 4"
                     opacity={0.9}
-                    className="fill-(--plan-signal-fill) stroke-(--plan-signal)"
+                    stroke="currentColor"
                   />
-                  <text
-                    x={s.x}
-                    y={s.y - 80}
-                    textAnchor="middle"
-                    fontSize={10.5}
-                    className="fill-(--plan-signal) font-mono"
-                  >
-                    EXPOSURE · WIND &gt;50KT
-                  </text>
+                  <line
+                    x1={at.x}
+                    y1={at.y + 46}
+                    x2={at.x}
+                    y2={at.y + 60}
+                    stroke="currentColor"
+                    strokeWidth={1}
+                  />
+                  <g transform={`translate(${boxX}, ${at.y + 60})`}>
+                    <rect
+                      x={0}
+                      y={0}
+                      width={140}
+                      height={18}
+                      rx={3}
+                      className="fill-surface"
+                      stroke="currentColor"
+                      strokeWidth={1}
+                    />
+                    <text
+                      x={7}
+                      y={12.5}
+                      fontSize={8.5}
+                      fill="currentColor"
+                      className="font-mono uppercase tracking-[0.04em]"
+                    >
+                      ⚠ {r.level} · {r.category}
+                    </text>
+                  </g>
                 </g>
-              ))}
+              );
+            })}
 
           {/* Alternate route overlay */}
           {alternate && (
