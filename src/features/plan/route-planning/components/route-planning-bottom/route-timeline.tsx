@@ -1,6 +1,6 @@
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { PlanStation } from "../route.types";
+import type { PlanStation } from "../types/route.types";
 
 interface RouteTimelineProps {
   stations: PlanStation[];

@@ -1,25 +1,23 @@
 import { Text } from "@/components/ui";
-import type { AlternateRoute } from "../route.utils";
-import type { PlanStation, RoutePlan } from "../route.types";
+import type { AlternateRoute } from "../../utils/route.utils";
+import type { PlanStation, RoutePlan } from "../../types/route.types";
 import { ElevationProfile } from "./elevation-profile";
+import { SummaryRow } from "./summary-row";
 import { RouteComparison, type RouteChoice } from "./route-comparison";
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between">
-      <Text
-        variant="caption"
-        as="span"
-        tone="tertiary"
-        className="font-mono uppercase tracking-[0.06em]"
-      >
-        {label}
-      </Text>
-      <Text variant="caption" as="span" className="font-mono text-fg-1">
-        {value}
-      </Text>
-    </div>
-  );
+interface RouteFooterProps {
+  plan: RoutePlan;
+  stations: PlanStation[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  alternate: AlternateRoute | null;
+  partyT: number;
+  activeRoute: RouteChoice;
+  onSelectRoute?: (choice: RouteChoice) => void;
+  committed: boolean;
+  onCommitRoute?: () => void;
+  onRevertRoute?: () => void;
+  hazardName?: string;
 }
 
 /** Footer: elevation cross-section (left) + route summary (right). */
@@ -36,20 +34,7 @@ export function RouteFooter({
   onCommitRoute,
   onRevertRoute,
   hazardName,
-}: {
-  plan: RoutePlan;
-  stations: PlanStation[];
-  selectedId: string;
-  onSelect: (id: string) => void;
-  alternate: AlternateRoute | null;
-  partyT: number;
-  activeRoute: RouteChoice;
-  onSelectRoute?: (choice: RouteChoice) => void;
-  committed: boolean;
-  onCommitRoute?: () => void;
-  onRevertRoute?: () => void;
-  hazardName?: string;
-}) {
+}: RouteFooterProps) {
   const hazardStation = stations.find((s) => s.hazard);
   return (
     <div className="flex flex-none flex-col border-t border-border bg-raised lg:flex-row">
