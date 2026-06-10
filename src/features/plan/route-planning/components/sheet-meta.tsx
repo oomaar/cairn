@@ -1,6 +1,6 @@
 import { Icon, Text, type IconName } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { RoutePlan } from "../route.types";
+import type { RoutePlan } from "../types/route.types";
 
 function MetaToggle({
   icon,
