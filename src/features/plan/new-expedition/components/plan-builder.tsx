@@ -1,48 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, Icon, Text, buttonVariants } from "@/components/ui";
+import { Avatar, Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
 import { useCan } from "@/features/session";
-import { listGear, listPeople, type Grade, type Tone } from "@/universe";
-import { useExpeditionDrafts } from "../expedition-drafts";
+import { listGear, listPeople, type Grade } from "@/universe";
+import { useExpeditionDrafts } from "../../expeditions/utils/expedition-drafts";
+import type { BuilderState } from "../types/BuilderState";
+import { EMPTY } from "../data/EMPTY";
+import { GRADES } from "../data/GRADES";
+import { avatarTone } from "../utils/avatarTone";
+import { StepRail } from "./step-rail";
+import { StepPanel } from "./step-panel";
+import { FooterNav } from "./footer-nav";
 
-type AvatarTone = "amber" | "olive" | "slate" | "quiet";
-const avatarTone = (tone?: Tone): AvatarTone =>
-  tone === "amber"
-    ? "amber"
-    : tone === "slate"
-      ? "slate"
-      : tone === "olive"
-        ? "olive"
-        : "quiet";
-
-interface BuilderState {
-  name: string;
-  region: string;
-  country: string;
-  grade: Grade;
-  distanceKm: number;
-  gainM: number;
-  dayTotal: number;
-  leaderId: string;
-  gear: string[];
-}
-
-const EMPTY: BuilderState = {
-  name: "",
-  region: "",
-  country: "",
-  grade: "moderate",
-  distanceKm: 0,
-  gainM: 0,
-  dayTotal: 0,
-  leaderId: "",
-  gear: [],
-};
-
-const GRADES: Grade[] = ["moderate", "strenuous", "expert"];
 const fieldLabel = "font-mono text-3xs uppercase tracking-[0.08em] text-fg-3";
 const fieldInput =
   "mt-1 w-full rounded-md border border-border bg-inset px-2.5 py-2 text-sm text-fg-1 outline-none focus-visible:border-accent-line placeholder:text-fg-4";
@@ -81,7 +53,6 @@ export function PlanBuilder() {
     "Safety review",
   ];
   const completed = done.filter(Boolean).length;
-  const readiness = Math.round((completed / steps.length) * 100);
   const canFile = done.slice(0, 4).every(Boolean) && safety;
 
   if (!canCreate) {
@@ -118,134 +89,19 @@ export function PlanBuilder() {
 
   const guides = listPeople().filter((p) => p.baseRole === "field-leader");
   const catalog = listGear();
-  const meterSegments = Math.round((completed / steps.length) * 16);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-app lg:flex-row">
-      {/* Step rail */}
-      <div className="flex w-full flex-none flex-col border-b border-border bg-surface py-3 lg:w-72 lg:border-b-0 lg:border-r lg:py-5">
-        <Text
-          variant="caption"
-          as="p"
-          tone="tertiary"
-          className="px-5 font-mono uppercase tracking-widest"
-        >
-          Mission preparation
-        </Text>
-        <ol className="mt-3 flex overflow-x-auto lg:flex-col lg:overflow-visible">
-          {steps.map((title, i) => {
-            const isDone = done[i];
-            const current = i === step;
-            return (
-              <li key={title} className="flex-none lg:flex-auto">
-                <button
-                  type="button"
-                  onClick={() => setStep(i)}
-                  className={cn(
-                    "flex w-full items-center gap-3 border-l-2 px-5 py-2.5 text-left transition-colors",
-                    current
-                      ? "border-accent bg-raised"
-                      : "border-transparent hover:bg-raised/60",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "grid size-6 flex-none place-items-center rounded-full border font-mono text-2xs",
-                      isDone
-                        ? "border-(--plan-sage) bg-[color-mix(in_srgb,var(--plan-sage)_18%,transparent)] text-(--plan-sage)"
-                        : current
-                          ? "border-accent text-accent-bright"
-                          : "border-border text-fg-3",
-                    )}
-                  >
-                    {isDone ? (
-                      <Icon name="check" size={12} strokeWidth={3} />
-                    ) : (
-                      String(i + 1).padStart(2, "0")
-                    )}
-                  </span>
-                  <span className="min-w-0">
-                    <Text
-                      variant="body-sm"
-                      as="span"
-                      className={cn(
-                        "block truncate",
-                        current ? "text-fg-1" : "text-fg-2",
-                      )}
-                    >
-                      {title}
-                    </Text>
-                    <Text
-                      variant="caption"
-                      as="span"
-                      tone="tertiary"
-                      className="font-mono"
-                    >
-                      {isDone
-                        ? "Complete"
-                        : current
-                          ? "In progress"
-                          : "Pending"}
-                    </Text>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+      <StepRail
+        steps={steps}
+        done={done}
+        step={step}
+        setStep={setStep}
+        completed={completed}
+      />
 
-        <div className="mt-auto px-5 pt-5">
-          <Text
-            variant="caption"
-            as="p"
-            tone="tertiary"
-            className="font-mono uppercase tracking-[0.08em]"
-          >
-            Readiness to file
-          </Text>
-          <div className="mt-2 flex gap-0.5">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span
-                key={i}
-                className={cn(
-                  "h-2 flex-1 rounded-[1px]",
-                  i < meterSegments ? "bg-accent" : "bg-border-strong",
-                )}
-              />
-            ))}
-          </div>
-          <Text
-            variant="caption"
-            as="p"
-            tone="tertiary"
-            className="mt-2 font-mono"
-          >
-            {completed} of {steps.length} steps · {readiness}%
-          </Text>
-        </div>
-      </div>
-
-      {/* Step panel */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex h-9 flex-none items-center gap-3 border-b border-border bg-surface px-5 font-mono">
-          <Text
-            variant="caption"
-            as="span"
-            tone="secondary"
-            className="uppercase tracking-[0.08em]"
-          >
-            New expedition
-          </Text>
-          <Text
-            variant="caption"
-            as="span"
-            tone="tertiary"
-            className="uppercase tracking-[0.06em]"
-          >
-            Step {step + 1} / {steps.length} · {steps[step]}
-          </Text>
-        </div>
-
+        <StepPanel step={step} steps={steps} />
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-xl">
             {step === 0 && (
@@ -478,46 +334,13 @@ export function PlanBuilder() {
             )}
           </div>
         </div>
-
-        {/* Footer nav */}
-        <div className="flex flex-none items-center gap-3 border-t border-border bg-surface px-5 py-3">
-          <button
-            type="button"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className={cn(
-              buttonVariants({ variant: "secondary", size: "md" }),
-              "disabled:opacity-40",
-            )}
-          >
-            Back
-          </button>
-          {step < steps.length - 1 ? (
-            <button
-              type="button"
-              onClick={() => setStep((s) => Math.min(steps.length - 1, s + 1))}
-              className={cn(
-                buttonVariants({ variant: "primary", size: "md" }),
-                "ml-auto",
-              )}
-            >
-              Continue
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={file}
-              disabled={!canFile}
-              className={cn(
-                buttonVariants({ variant: "primary", size: "md" }),
-                "ml-auto gap-2 disabled:opacity-40",
-              )}
-            >
-              File expedition
-              <Icon name="check" size={15} />
-            </button>
-          )}
-        </div>
+        <FooterNav
+          step={step}
+          setStep={setStep}
+          steps={steps}
+          file={file}
+          canFile={canFile}
+        />
       </div>
     </div>
   );
