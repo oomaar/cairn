@@ -1,4 +1,4 @@
-import { Text } from "@/components/ui";
+import { Text, Dropdown } from "@/components/ui";
 import type { CheckpointType } from "@/universe";
 import type { PlanStation } from "../../types/route.types";
 import { defaultNote } from "./utils/defaultNote";
@@ -113,20 +113,16 @@ export function StationDetail({ station, onChange }: StationDetailProps) {
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className={fieldLabel}>Type</span>
-          <select
+          <Dropdown
             value={station.type}
-            onChange={(e) =>
-              onChange({ type: e.target.value as CheckpointType })
+            options={TYPES.map((t) => ({
+              value: t,
+              label: t.charAt(0).toUpperCase() + t.slice(1),
+            }))}
+            onChange={(value) =>
+              onChange({ type: value as CheckpointType })
             }
-            aria-label="Checkpoint type"
-            className={`${fieldInput} capitalize`}
-          >
-            {TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         <label className="block">
           <span className={fieldLabel}>ETA</span>
