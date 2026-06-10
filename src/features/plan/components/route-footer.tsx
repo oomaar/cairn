@@ -52,7 +52,7 @@ export function RouteFooter({
 }) {
   const hazardStation = stations.find((s) => s.hazard);
   return (
-    <div className="flex flex-none border-t border-border bg-raised">
+    <div className="flex flex-none flex-col border-t border-border bg-raised lg:flex-row">
       <div className="min-w-0 flex-1 p-4">
         <div className="flex items-center">
           <Text
@@ -86,7 +86,7 @@ export function RouteFooter({
         </div>
       </div>
 
-      <div className="w-64 flex-none border-l border-border p-4">
+      <div className="w-full flex-none border-t border-border p-4 lg:w-64 lg:border-l lg:border-t-0">
         <Text
           variant="caption"
           as="p"
