@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, Icon, Text } from "@/components/ui";
+import { Avatar, Icon, Text, Dropdown } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
 import { useCan } from "@/features/session";
@@ -137,17 +137,14 @@ export function PlanBuilder() {
                 </div>
                 <label className="block">
                   <span className={fieldLabel}>Grade</span>
-                  <select
+                  <Dropdown
                     value={draft.grade}
-                    onChange={(e) => patch({ grade: e.target.value as Grade })}
-                    className={`${fieldInput} capitalize`}
-                  >
-                    {GRADES.map((g) => (
-                      <option key={g} value={g}>
-                        {g}
-                      </option>
-                    ))}
-                  </select>
+                    options={GRADES.map((g) => ({
+                      value: g,
+                      label: g.charAt(0).toUpperCase() + g.slice(1),
+                    }))}
+                    onChange={(value) => patch({ grade: value as Grade })}
+                  />
                 </label>
               </div>
             )}
