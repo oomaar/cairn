@@ -17,13 +17,13 @@ import {
   chartPointAtKm,
   contourRing,
   type AlternateRoute,
-} from "../route.utils";
+} from "../utils/route.utils";
 import type {
   ChartLayers,
   PlanRisk,
   PlanStation,
   PlanWeather,
-} from "../route.types";
+} from "../types/route.types";
 import type { Tone } from "@/universe";
 
 interface ChartCanvasProps {
