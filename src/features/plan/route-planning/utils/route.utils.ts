@@ -11,7 +11,7 @@ import type {
   PlanStation,
   PlanWeather,
   RoutePlan,
-} from "./route.types";
+} from "../types/route.types";
 
 /** Chart viewBox + plotting margins. */
 export const CHART_W = 960;
