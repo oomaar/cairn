@@ -1,13 +1,7 @@
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import type { CheckpointStatus } from "@/universe";
-import type { PlanStation } from "../route.types";
-
-const STATUS_DOT: Record<CheckpointStatus, string> = {
-  done: "bg-(--plan-sage)",
-  current: "bg-accent",
-  ahead: "border border-border-strong",
-};
+import type { PlanStation } from "../../types/route.types";
+import { STATUS_DOT } from "./data/STATUS_DOT";
 
 interface CheckpointListProps {
   stations: PlanStation[];

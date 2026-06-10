@@ -1,50 +1,9 @@
 import { Text } from "@/components/ui";
 import type { CheckpointType } from "@/universe";
-import type { PlanStation } from "../route.types";
-
-const TYPES: CheckpointType[] = [
-  "trailhead",
-  "camp",
-  "viewpoint",
-  "crossing",
-  "pass",
-  "summit",
-];
-
-function defaultNote(type: CheckpointType): string {
-  switch (type) {
-    case "pass":
-      return "Exposed col — commit only inside the weather window.";
-    case "crossing":
-      return "Watercourse crossing — check flow before committing the party.";
-    case "camp":
-      return "Established camp — water and shelter on site.";
-    case "viewpoint":
-      return "Viewpoint — brief photo stop, no shelter.";
-    case "summit":
-      return "Summit — turnaround time is non-negotiable.";
-    default:
-      return "Open station on the plotted line.";
-  }
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <Text
-        variant="caption"
-        as="p"
-        tone="tertiary"
-        className="font-mono text-3xs uppercase tracking-[0.08em]"
-      >
-        {label}
-      </Text>
-      <Text variant="body-sm" as="p" className="mt-0.5 font-semibold">
-        {value}
-      </Text>
-    </div>
-  );
-}
+import type { PlanStation } from "../../types/route.types";
+import { defaultNote } from "./utils/defaultNote";
+import { TYPES } from "./data/TYPES";
+import { Metric } from "./metric";
 
 const fieldLabel = "font-mono text-3xs uppercase tracking-[0.08em] text-fg-3";
 const fieldInput =
