@@ -11,21 +11,17 @@ import {
   insertCheckpoint,
   reindexStations,
   reorderStations,
-} from "../route.utils";
-import { usePartyProgress } from "../use-party-progress";
-import type { ChartLayers, PlanStation, RoutePlan } from "../route.types";
+} from "../utils/route.utils";
+import { usePartyProgress } from "../hooks/use-party-progress";
+import type { ChartLayers, PlanStation, RoutePlan } from "../types/route.types";
 import { SheetMeta } from "./sheet-meta";
-import { StationSearch } from "./station-search";
-import { PlottingTools } from "./plotting-tools";
 import { ChartCanvas, type ChartHandle } from "./chart-canvas";
-import { CheckpointList } from "./checkpoint-list";
-import { StationDetail } from "./station-detail";
-import { RouteTimeline } from "./route-timeline";
-import { RouteFooter } from "./route-footer";
-import type { RouteChoice } from "./route-comparison";
-import { PlanningNotes } from "./planning-notes";
-import { buildPlanningNotes, makeNote } from "../planning-notes.utils";
-import type { PlanningNote } from "../planning-notes.types";
+import { buildPlanningNotes, makeNote } from "../utils/planning-notes.utils";
+import type { PlanningNote } from "../types/planning-notes.types";
+import { RoutePlanningLeft } from "./route-planning-left/route-planning-left";
+import { RoutePlanningRight } from "./route-planning-right/route-planning-right";
+import { RoutePlanningBottom } from "./route-planning-bottom/route-planning-bottom";
+import type { RouteChoice } from "./route-planning-bottom/route-comparison";
 
 const INITIAL_LAYERS: ChartLayers = {
   terrain: true,
@@ -192,18 +188,16 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
 
       <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:flex-row lg:overflow-hidden">
         {showLeft && (
-          <aside className="order-2 flex w-full flex-none flex-col border-t border-border bg-surface lg:order-1 lg:w-52 lg:overflow-y-auto lg:border-r lg:border-t-0">
-            <StationSearch stations={stations} onPick={pickStation} />
-            <PlottingTools layers={layers} onToggle={toggleLayer} />
-            <span className="mx-4 my-1 h-px bg-border" />
-            <PlanningNotes
-              notes={notes}
-              stations={stations}
-              selectedId={selected.id}
-              onSelectCheckpoint={pickStation}
-              onAdd={canEdit ? addNote : undefined}
-            />
-          </aside>
+          <RoutePlanningLeft
+            stations={stations}
+            pickStation={pickStation}
+            layers={layers}
+            toggleLayer={toggleLayer}
+            notes={notes}
+            selected={selected}
+            canEdit={canEdit}
+            addNote={addNote}
+          />
         )}
 
         <div className="relative order-1 min-h-[55vh] w-full min-w-0 overflow-hidden lg:order-2 lg:min-h-0 lg:flex-1">
@@ -225,50 +219,35 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
         </div>
 
         {showRight && (
-          <aside className="order-3 flex w-full flex-none flex-col border-t border-border bg-surface lg:w-72 lg:border-l lg:border-t-0">
-            <CheckpointList
-              stations={stations}
-              selectedId={selected.id}
-              onSelect={setSelectedId}
-              onAdd={canEdit ? addCheckpoint : undefined}
-              onRemove={canEdit ? removeCheckpoint : undefined}
-              onMove={canEdit ? moveCheckpoint : undefined}
-            />
-            <StationDetail
-              station={selected}
-              onChange={
-                canEdit
-                  ? (patch) => updateCheckpoint(selected.id, patch)
-                  : undefined
-              }
-            />
-          </aside>
+          <RoutePlanningRight
+            stations={stations}
+            selected={selected}
+            setSelectedId={setSelectedId}
+            canEdit={canEdit}
+            addCheckpoint={addCheckpoint}
+            removeCheckpoint={removeCheckpoint}
+            moveCheckpoint={moveCheckpoint}
+            updateCheckpoint={updateCheckpoint}
+          />
         )}
       </div>
 
       {!focus && (
-        <>
-          <RouteTimeline
-            stations={stations}
-            selectedId={selected.id}
-            onSelect={setSelectedId}
-          />
-
-          <RouteFooter
-            plan={plan}
-            stations={stations}
-            selectedId={selected.id}
-            onSelect={setSelectedId}
-            alternate={alternate}
-            partyT={partyT}
-            activeRoute={activeRoute}
-            onSelectRoute={canEdit ? selectRoute : undefined}
-            committed={committed}
-            onCommitRoute={canEdit ? commitRoute : undefined}
-            onRevertRoute={canEdit ? revertRoute : undefined}
-            hazardName={hazardName}
-          />
-        </>
+        <RoutePlanningBottom
+          stations={stations}
+          selected={selected}
+          setSelectedId={setSelectedId}
+          plan={plan}
+          alternate={alternate}
+          partyT={partyT}
+          activeRoute={activeRoute}
+          canEdit={canEdit}
+          selectRoute={selectRoute}
+          committed={committed}
+          commitRoute={commitRoute}
+          revertRoute={revertRoute}
+          hazardName={hazardName}
+        />
       )}
     </div>
   );
