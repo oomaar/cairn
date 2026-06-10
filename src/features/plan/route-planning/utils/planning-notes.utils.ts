@@ -1,7 +1,7 @@
 import { getLeader, getRoster, type Person, type Tone } from "@/universe";
 import { createRng } from "@/universe/rng";
-import type { PlanStation } from "./route.types";
-import type { NoteTone, PlanningNote } from "./planning-notes.types";
+import type { PlanStation } from "../types/route.types";
+import type { NoteTone, PlanningNote } from "../types/planning-notes.types";
 
 /** Sheet-level note templates. `{cp}` is replaced with a checkpoint name when
  *  the note is anchored; templates without `{cp}` stay route-wide. */
