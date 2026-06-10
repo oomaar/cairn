@@ -7,3 +7,5 @@ export { Wordmark } from "./wordmark";
 export { Avatar } from "./avatar";
 export { Button, buttonVariants } from "./button";
 export type { ButtonProps } from "./button";
+export { Dropdown } from "./dropdown";
+export type { DropdownProps } from "./dropdown";
