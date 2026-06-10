@@ -32,7 +32,7 @@ export function RouteTimeline({
         Route timeline
       </Text>
 
-      <ol className="flex items-stretch">
+      <ol className="flex items-stretch overflow-x-auto">
         {stations.map((s, i) => {
           const sel = s.id === selectedId;
           const cur = s.status === "current";
@@ -43,7 +43,7 @@ export function RouteTimeline({
           return (
             <li
               key={s.id}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1.5"
+              className="flex min-w-16 flex-1 flex-col items-center gap-1.5"
             >
               <Text
                 variant="caption"
