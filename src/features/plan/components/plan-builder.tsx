@@ -121,9 +121,9 @@ export function PlanBuilder() {
   const meterSegments = Math.round((completed / steps.length) * 16);
 
   return (
-    <div className="flex min-h-0 flex-1 bg-app">
+    <div className="flex min-h-0 flex-1 flex-col bg-app lg:flex-row">
       {/* Step rail */}
-      <div className="flex w-72 flex-none flex-col border-r border-border bg-surface py-5">
+      <div className="flex w-full flex-none flex-col border-b border-border bg-surface py-3 lg:w-72 lg:border-b-0 lg:border-r lg:py-5">
         <Text
           variant="caption"
           as="p"
@@ -132,12 +132,12 @@ export function PlanBuilder() {
         >
           Mission preparation
         </Text>
-        <ol className="mt-3 flex flex-col">
+        <ol className="mt-3 flex overflow-x-auto lg:flex-col lg:overflow-visible">
           {steps.map((title, i) => {
             const isDone = done[i];
             const current = i === step;
             return (
-              <li key={title}>
+              <li key={title} className="flex-none lg:flex-auto">
                 <button
                   type="button"
                   onClick={() => setStep(i)}
@@ -259,7 +259,7 @@ export function PlanBuilder() {
                     className={fieldInput}
                   />
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="block">
                     <span className={fieldLabel}>Region</span>
                     <input
@@ -297,7 +297,7 @@ export function PlanBuilder() {
             )}
 
             {step === 1 && (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <label className="block">
                   <span className={fieldLabel}>Distance (km)</span>
                   <input
@@ -378,7 +378,7 @@ export function PlanBuilder() {
             )}
 
             {step === 3 && (
-              <ul className="grid grid-cols-2 gap-2">
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {catalog.map((item) => {
                   const selected = draft.gear.includes(item.id);
                   return (
