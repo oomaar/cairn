@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Icon, Text } from "@/components/ui";
-import type { PlanStation } from "../route.types";
+import type { PlanStation } from "../../types/route.types";
 
 interface StationSearchProps {
   stations: PlanStation[];
