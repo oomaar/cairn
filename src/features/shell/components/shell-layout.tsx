@@ -8,6 +8,7 @@ import {
   CommandPaletteProvider,
   useCommandPalette,
 } from "@/features/command-palette";
+import { ExpeditionDraftsProvider } from "@/features/plan";
 import { Spine } from "./spine";
 
 /** Reads the app contexts and renders the constant spine alongside the routed
@@ -47,10 +48,12 @@ export function ShellLayout({
   return (
     <SessionProvider initialRole={initialRole}>
       <NavigationProvider>
-        <CommandPaletteProvider>
-          <ShellChrome>{children}</ShellChrome>
-          <CommandPalette />
-        </CommandPaletteProvider>
+        <ExpeditionDraftsProvider>
+          <CommandPaletteProvider>
+            <ShellChrome>{children}</ShellChrome>
+            <CommandPalette />
+          </CommandPaletteProvider>
+        </ExpeditionDraftsProvider>
       </NavigationProvider>
     </SessionProvider>
   );

@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { WORLD_BY_KEY, WORLDS, type WorldKey } from "@/features/theme";
 import { ModulePlaceholder } from "@/features/shell";
+import { PlanBuilder, PlanExpeditions, RoutePlanningWorkspace } from "@/features/plan";
 
 /** Pre-render every world/module route as static content. */
 export function generateStaticParams() {
@@ -9,8 +11,16 @@ export function generateStaticParams() {
   );
 }
 
-/** A module workspace. Placeholder for now — validates the world+module and
- *  renders the world-scoped placeholder body. */
+/** Built workspaces, keyed by `${world}/${module}`. Anything not listed falls
+ *  back to the placeholder while it's still being built out. */
+const WORKSPACES: Record<string, () => ReactNode> = {
+  "plan/route": () => <RoutePlanningWorkspace />,
+  "plan/expeditions": () => <PlanExpeditions />,
+  "plan/builder": () => <PlanBuilder />,
+};
+
+/** A module workspace. Validates the world+module, then renders the real
+ *  workspace if one exists, else the world-scoped placeholder. */
 export default async function ModulePage({
   params,
 }: PageProps<"/[world]/[module]">) {
@@ -19,5 +29,10 @@ export default async function ModulePage({
   const mod = world?.modules.find((m) => m.key === moduleParam);
   if (!world || !mod) notFound();
 
-  return <ModulePlaceholder world={world} moduleLabel={mod.label} />;
+  const workspace = WORKSPACES[`${world.key}/${mod.key}`];
+  return workspace ? (
+    workspace()
+  ) : (
+    <ModulePlaceholder world={world} moduleLabel={mod.label} />
+  );
 }

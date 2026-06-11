@@ -36,6 +36,7 @@ const ICON_PATHS = {
   bell: "M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0",
   search: "M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35",
   plus: "M12 5v14M5 12h14",
+  minus: "M5 12h14",
   arrowUR: "M7 17L17 7M7 7h10v10",
   arrowR: "M5 12h14M12 5l7 7-7 7",
   arrowDown: "M12 5v14M19 12l-7 7-7-7",
