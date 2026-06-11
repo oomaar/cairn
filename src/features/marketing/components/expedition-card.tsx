@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 import type { Expedition, Person } from "@/universe";
 import { ContourBackdrop } from "./contour-backdrop";
 import { TONE_DOT } from "../marketing.constants";
+import { capitalize } from "@/utils/capitalize";
 
 type AvatarTone = "amber" | "olive" | "slate" | "quiet";
 const avatarTone = (tone?: Person["tone"]): AvatarTone =>
@@ -13,8 +14,6 @@ const avatarTone = (tone?: Person["tone"]): AvatarTone =>
       : tone === "olive"
         ? "olive"
         : "quiet";
-
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function progressLabel(e: Expedition): string {
   switch (e.status) {
