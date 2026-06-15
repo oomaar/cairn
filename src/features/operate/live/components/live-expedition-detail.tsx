@@ -5,6 +5,7 @@ import { getInitialLiveState } from "../utils/getInitialLiveState";
 import { useLiveExpeditionUpdates } from "../hooks/use-live-expedition-updates";
 import { listExpeditions } from "@/universe";
 import { CONDITION_EMOJI } from "../data/CONDITION_EMOJI";
+import { CheckpointTimeline } from "./checkpoint-timeline";
 
 interface LiveExpeditionModalProps {
   expeditionId: string;
@@ -73,7 +74,8 @@ export function LiveExpeditionDetail({
                   Route Progress
                 </Text>
                 <Text variant="caption" tone="tertiary" className="font-mono">
-                  {state.currentCheckpointIndex + 1} of 5 checkpoints
+                  {state.currentCheckpointIndex + 1} of{" "}
+                  {state.checkpoints.length} checkpoints
                 </Text>
               </div>
               <div className="h-2 rounded-full bg-border-strong">
@@ -83,6 +85,12 @@ export function LiveExpeditionDetail({
                 />
               </div>
             </div>
+
+            {/* Checkpoint Timeline */}
+            <CheckpointTimeline
+              checkpoints={state.checkpoints}
+              currentIndex={state.currentCheckpointIndex}
+            />
 
             {/* Location & Weather */}
             <div className="grid grid-cols-2 gap-3">
