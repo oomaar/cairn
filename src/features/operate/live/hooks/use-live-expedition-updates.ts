@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import type { LiveExpeditionState } from "../types/live-expedition.types";
 import { WEATHER_CONDITIONS } from "../data/WEATHER_CONDITIONS";
 import { generateRandomIncident } from "../utils/generateRandomIncident";
+import { updateCheckpointStatuses } from "../utils/updateCheckpointStatuses";
+import { calculateCurrentCheckpointIndex } from "../utils/calculateCurrentCheckpointIndex";
+import { calculateNextCheckpoint } from "../utils/calculateNextCheckpoint";
 
 export function useLiveExpeditionUpdates(
   expeditionId: string,
@@ -24,6 +27,18 @@ export function useLiveExpeditionUpdates(
         // Simulate progress along the route
         const progressStep = Math.random() * 2;
         const newProgress = Math.min(100, prev.progressPct + progressStep);
+
+        // Update checkpoint statuses and progression
+        const updatedCheckpoints = updateCheckpointStatuses(
+          prev.checkpoints,
+          newProgress,
+        );
+        const currentCheckpointIndex =
+          calculateCurrentCheckpointIndex(updatedCheckpoints);
+        const nextCheckpoint = calculateNextCheckpoint(
+          updatedCheckpoints,
+          currentCheckpointIndex,
+        );
 
         // Simulate weather change
         const weatherChance = Math.random();
@@ -54,9 +69,12 @@ export function useLiveExpeditionUpdates(
 
         return {
           ...prev,
+          checkpoints: updatedCheckpoints,
+          currentCheckpointIndex,
           progressPct: newProgress,
           incidents: newIncidents,
           weather,
+          nextCheckpoint,
           partyStatus: {
             healthy: Math.round(partyStatus.healthy * 100) / 100,
             fatigued: Math.round(partyStatus.fatigued * 100) / 100,
