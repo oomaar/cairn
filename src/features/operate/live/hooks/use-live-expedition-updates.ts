@@ -7,6 +7,11 @@ import { generateRandomIncident } from "../utils/generateRandomIncident";
 import { updateCheckpointStatuses } from "../utils/updateCheckpointStatuses";
 import { calculateCurrentCheckpointIndex } from "../utils/calculateCurrentCheckpointIndex";
 import { calculateNextCheckpoint } from "../utils/calculateNextCheckpoint";
+import { getCommsStatus } from "../utils/getCommsStatus";
+import { calculateCrewReadiness } from "../utils/calculateCrewReadiness";
+import { calculateRiskLevel } from "../utils/calculateRiskLevel";
+import { calculateReadinessScore } from "../utils/calculateReadinessScore";
+import { generateStatusAlerts } from "../utils/generateStatusAlerts";
 
 export function useLiveExpeditionUpdates(
   expeditionId: string,
@@ -89,20 +94,59 @@ export function useLiveExpeditionUpdates(
               : p.relativePosition,
         }));
 
+        // Calculate expedition status
+        const crewReadiness = calculateCrewReadiness(updatedParticipants);
+        const roundedPartyStatus = {
+          healthy: Math.round(partyStatus.healthy * 100) / 100,
+          fatigued: Math.round(partyStatus.fatigued * 100) / 100,
+          injured: Math.round(Math.min(1, partyStatus.injured) * 100) / 100,
+        };
+        const weatherFactor =
+          100 -
+          (weather.windSpeed > 40 ? 20 : 0) -
+          (weather.condition === "storm" || weather.condition === "snow"
+            ? 30
+            : 0);
+        const riskLevel = calculateRiskLevel(
+          newIncidents,
+          weather,
+          updatedParticipants,
+          roundedPartyStatus.injured,
+        );
+        const readinessScore = calculateReadinessScore(
+          crewReadiness,
+          100,
+          weatherFactor,
+          newProgress,
+        );
+        const hazardCheckpoints = updatedCheckpoints.some((cp) => cp.hazard);
+        const alerts = generateStatusAlerts(
+          newIncidents,
+          updatedParticipants,
+          weather,
+          hazardCheckpoints,
+          roundedPartyStatus.injured,
+        );
+        const commsStatus = getCommsStatus(alerts.communicationAlert);
+
         return {
           ...prev,
           checkpoints: updatedCheckpoints,
           participants: updatedParticipants,
+          expeditionStatus: {
+            readinessScore,
+            riskLevel,
+            crewReadiness: Math.round(crewReadiness),
+            equipmentReady: 100,
+            commsStatus,
+            alerts,
+          },
           currentCheckpointIndex,
           progressPct: newProgress,
           incidents: newIncidents,
           weather,
           nextCheckpoint,
-          partyStatus: {
-            healthy: Math.round(partyStatus.healthy * 100) / 100,
-            fatigued: Math.round(partyStatus.fatigued * 100) / 100,
-            injured: Math.round(Math.min(1, partyStatus.injured) * 100) / 100,
-          },
+          partyStatus: roundedPartyStatus,
           lastUpdate: new Date(),
         };
       });
