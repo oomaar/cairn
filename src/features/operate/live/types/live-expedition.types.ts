@@ -25,11 +25,27 @@ export interface LiveParticipant {
   flag?: string;
 }
 
+export interface ExpeditionStatus {
+  readinessScore: number;
+  riskLevel: "low" | "medium" | "high";
+  crewReadiness: number;
+  equipmentReady: number;
+  commsStatus: "ok" | "degraded" | "lost";
+  alerts: {
+    weatherAlert: boolean;
+    crewAlert: boolean;
+    equipmentAlert: boolean;
+    navigationAlert: boolean;
+    communicationAlert: boolean;
+  };
+}
+
 export interface LiveExpeditionState {
   expeditionId: string;
   status: "pre-departure" | "in-transit" | "camped" | "emergency" | "complete";
   checkpoints: LiveCheckpoint[];
   participants: LiveParticipant[];
+  expeditionStatus: ExpeditionStatus;
   currentCheckpointIndex: number;
   progressPct: number;
   currentLocation: {
