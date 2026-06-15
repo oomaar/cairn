@@ -12,10 +12,24 @@ export interface LiveCheckpoint {
   status: "done" | "current" | "ahead";
 }
 
+export interface LiveParticipant {
+  id: string;
+  name: string;
+  initials: string;
+  role: "field-leader" | "assistant-lead" | "participant";
+  tone: string;
+  heartRate: number;
+  pace: string;
+  relativePosition: string;
+  battery: number;
+  flag?: string;
+}
+
 export interface LiveExpeditionState {
   expeditionId: string;
   status: "pre-departure" | "in-transit" | "camped" | "emergency" | "complete";
   checkpoints: LiveCheckpoint[];
+  participants: LiveParticipant[];
   currentCheckpointIndex: number;
   progressPct: number;
   currentLocation: {
