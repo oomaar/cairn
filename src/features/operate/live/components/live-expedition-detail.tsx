@@ -6,6 +6,7 @@ import { useLiveExpeditionUpdates } from "../hooks/use-live-expedition-updates";
 import { listExpeditions } from "@/universe";
 import { CONDITION_EMOJI } from "../data/CONDITION_EMOJI";
 import { CheckpointTimeline } from "./checkpoint-timeline";
+import { ParticipantTelemetry } from "./participant-telemetry";
 
 interface LiveExpeditionModalProps {
   expeditionId: string;
@@ -91,6 +92,9 @@ export function LiveExpeditionDetail({
               checkpoints={state.checkpoints}
               currentIndex={state.currentCheckpointIndex}
             />
+
+            {/* Participant Telemetry */}
+            <ParticipantTelemetry participants={state.participants} />
 
             {/* Location & Weather */}
             <div className="grid grid-cols-2 gap-3">
