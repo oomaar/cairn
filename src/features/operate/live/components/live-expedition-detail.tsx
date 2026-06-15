@@ -7,6 +7,8 @@ import { listExpeditions } from "@/universe";
 import { CONDITION_EMOJI } from "../data/CONDITION_EMOJI";
 import { CheckpointTimeline } from "./checkpoint-timeline";
 import { ParticipantTelemetry } from "./participant-telemetry";
+import { ExpeditionHealth } from "./expedition-health";
+import { ExpeditionAnnunciator } from "./expedition-annunciator";
 
 interface LiveExpeditionModalProps {
   expeditionId: string;
@@ -67,6 +69,12 @@ export function LiveExpeditionDetail({
                 {state.progressPct.toFixed(0)}% progress
               </Text>
             </div>
+
+            {/* Expedition Health */}
+            <ExpeditionHealth status={state.expeditionStatus} />
+
+            {/* Annunciator */}
+            <ExpeditionAnnunciator status={state.expeditionStatus} />
 
             {/* Progress Bar */}
             <div className="space-y-1">
