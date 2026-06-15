@@ -7,6 +7,11 @@ import { updateCheckpointStatuses } from "./updateCheckpointStatuses";
 import { calculateCurrentCheckpointIndex } from "./calculateCurrentCheckpointIndex";
 import { calculateNextCheckpoint } from "./calculateNextCheckpoint";
 import { createMockParticipant } from "./createMockParticipant";
+import { getCommsStatus } from "./getCommsStatus";
+import { calculateCrewReadiness } from "./calculateCrewReadiness";
+import { calculateRiskLevel } from "./calculateRiskLevel";
+import { calculateReadinessScore } from "./calculateReadinessScore";
+import { generateStatusAlerts } from "./generateStatusAlerts";
 
 export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
   const universalCheckpoints = getCheckpoints(expeditionId);
@@ -72,11 +77,65 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
     currentCheckpointIndex,
   );
 
+  // Initial weather and party status
+  const weather: {
+    condition: "clear" | "cloudy" | "rain" | "snow" | "wind" | "storm";
+    temperature: number;
+    windSpeed: number;
+    visibility: number;
+  } = {
+    condition: "cloudy",
+    temperature: 8,
+    windSpeed: 22,
+    visibility: 1.5,
+  };
+  const partyStatus = {
+    healthy: 0.7,
+    fatigued: 0.25,
+    injured: 0.05,
+  };
+
+  // Calculate expedition status
+  const crewReadiness = calculateCrewReadiness(finalParticipants);
+  const weatherFactor =
+    100 -
+    (weather.windSpeed > 40 ? 20 : 0) -
+    (weather.condition === "storm" || weather.condition === "snow" ? 30 : 0);
+  const riskLevel = calculateRiskLevel(
+    [],
+    weather,
+    finalParticipants,
+    partyStatus.injured,
+  );
+  const readinessScore = calculateReadinessScore(
+    crewReadiness,
+    100,
+    weatherFactor,
+    progressPct,
+  );
+  const hazardCheckpoints = statusedCheckpoints.some((cp) => cp.hazard);
+  const alerts = generateStatusAlerts(
+    [],
+    finalParticipants,
+    weather,
+    hazardCheckpoints,
+    partyStatus.injured,
+  );
+  const commsStatus = getCommsStatus(alerts.communicationAlert);
+
   return {
     expeditionId,
     status: "in-transit",
     checkpoints: statusedCheckpoints,
     participants: finalParticipants,
+    expeditionStatus: {
+      readinessScore,
+      riskLevel,
+      crewReadiness: Math.round(crewReadiness),
+      equipmentReady: 100,
+      commsStatus,
+      alerts,
+    },
     currentCheckpointIndex,
     progressPct,
     currentLocation: {
@@ -84,17 +143,8 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
       lng: -73.15,
       elevation: 1240,
     },
-    partyStatus: {
-      healthy: 0.7,
-      fatigued: 0.25,
-      injured: 0.05,
-    },
-    weather: {
-      condition: "cloudy",
-      temperature: 8,
-      windSpeed: 22,
-      visibility: 1.5,
-    },
+    partyStatus,
+    weather,
     incidents: [],
     lastUpdate: new Date(),
     nextCheckpoint,
