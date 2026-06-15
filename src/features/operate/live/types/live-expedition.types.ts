@@ -1,6 +1,21 @@
+import type { CheckpointType } from "@/universe";
+
+export interface LiveCheckpoint {
+  id: string;
+  name: string;
+  index: number;
+  km: number;
+  elevationM: number;
+  eta: string;
+  type: CheckpointType;
+  hazard: boolean;
+  status: "done" | "current" | "ahead";
+}
+
 export interface LiveExpeditionState {
   expeditionId: string;
   status: "pre-departure" | "in-transit" | "camped" | "emergency" | "complete";
+  checkpoints: LiveCheckpoint[];
   currentCheckpointIndex: number;
   progressPct: number;
   currentLocation: {
