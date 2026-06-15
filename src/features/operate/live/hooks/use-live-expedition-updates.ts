@@ -67,9 +67,32 @@ export function useLiveExpeditionUpdates(
           injured: prev.partyStatus.injured + (Math.random() > 0.98 ? 0.05 : 0),
         };
 
+        // Simulate participant telemetry updates
+        const updatedParticipants = prev.participants.map((p) => ({
+          ...p,
+          heartRate: Math.min(
+            160,
+            Math.max(80, p.heartRate + (Math.random() - 0.4) * 8),
+          ),
+          battery: Math.max(0, p.battery - 0.8),
+          pace:
+            Math.random() > 0.95
+              ? ["on pace", "+5%", "-10%", "+3%", "sweep"][
+                  Math.floor(Math.random() * 5)
+                ]!
+              : p.pace,
+          relativePosition:
+            Math.random() > 0.92
+              ? ["lead", "12m back", "mid-group", "20m back", "rear"][
+                  Math.floor(Math.random() * 5)
+                ]!
+              : p.relativePosition,
+        }));
+
         return {
           ...prev,
           checkpoints: updatedCheckpoints,
+          participants: updatedParticipants,
           currentCheckpointIndex,
           progressPct: newProgress,
           incidents: newIncidents,
