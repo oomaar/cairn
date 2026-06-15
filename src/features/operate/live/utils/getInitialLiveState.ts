@@ -1,12 +1,46 @@
+import { getCheckpoints } from "@/universe";
 import type { LiveExpeditionState } from "../types/live-expedition.types";
+import { updateCheckpointStatuses } from "./updateCheckpointStatuses";
+import { calculateCurrentCheckpointIndex } from "./calculateCurrentCheckpointIndex";
+import { calculateNextCheckpoint } from "./calculateNextCheckpoint";
 
-// Seeded initial state for demo
 export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
+  const universalCheckpoints = getCheckpoints(expeditionId);
+
+  // Map universe checkpoints to live checkpoints
+  const checkpoints = universalCheckpoints.map((cp, idx) => ({
+    id: cp.id,
+    name: cp.name,
+    index: idx,
+    km: cp.km,
+    elevationM: cp.elevationM,
+    eta: cp.eta,
+    type: cp.type,
+    hazard: cp.hazard,
+    status: "ahead" as const,
+  }));
+
+  // Simulate initial progress at 32%
+  const progressPct = 32;
+
+  // Update checkpoint statuses based on progress
+  const statusedCheckpoints = updateCheckpointStatuses(
+    checkpoints,
+    progressPct,
+  );
+  const currentCheckpointIndex =
+    calculateCurrentCheckpointIndex(statusedCheckpoints);
+  const nextCheckpoint = calculateNextCheckpoint(
+    statusedCheckpoints,
+    currentCheckpointIndex,
+  );
+
   return {
     expeditionId,
     status: "in-transit",
-    currentCheckpointIndex: 2,
-    progressPct: 32,
+    checkpoints: statusedCheckpoints,
+    currentCheckpointIndex,
+    progressPct,
     currentLocation: {
       lat: -50.95,
       lng: -73.15,
@@ -25,10 +59,6 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
     },
     incidents: [],
     lastUpdate: new Date(),
-    nextCheckpoint: {
-      name: "Camp Refuge",
-      eta: "16:30",
-      distanceKm: 4.2,
-    },
+    nextCheckpoint,
   };
 }
