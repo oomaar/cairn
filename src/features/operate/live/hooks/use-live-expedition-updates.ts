@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { LiveExpeditionState } from "../types/live-expedition.types";
-import { generateRandomIncident } from "../../risk/utils/generateRandomIncident";
 import { WEATHER_CONDITIONS } from "../data/WEATHER_CONDITIONS";
+import { generateRandomIncident } from "../utils/generateRandomIncident";
 
 export function useLiveExpeditionUpdates(
   expeditionId: string,
