@@ -1,4 +1,4 @@
-import type { CheckpointType } from "@/universe";
+import type { CheckpointType, WeatherAlert } from "@/universe";
 
 export interface LiveCheckpoint {
   id: string;
@@ -25,6 +25,14 @@ export interface LiveParticipant {
   flag?: string;
 }
 
+export interface ForecastPeriod {
+  timestamp: Date;
+  condition: "clear" | "cloudy" | "rain" | "snow" | "wind" | "storm";
+  windSpeed: number;
+  temperature: number;
+  visibility: number;
+}
+
 export interface ExpeditionStatus {
   readinessScore: number;
   riskLevel: "low" | "medium" | "high";
@@ -46,6 +54,8 @@ export interface LiveExpeditionState {
   checkpoints: LiveCheckpoint[];
   participants: LiveParticipant[];
   expeditionStatus: ExpeditionStatus;
+  weatherAlerts: WeatherAlert[];
+  weatherForecast: ForecastPeriod[];
   currentCheckpointIndex: number;
   progressPct: number;
   currentLocation: {
