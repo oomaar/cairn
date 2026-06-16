@@ -1,7 +1,8 @@
-import { getCheckpoints, getRoster } from "@/universe";
+import { getCheckpoints, getRoster, getWeather } from "@/universe";
 import type {
   LiveExpeditionState,
   LiveParticipant,
+  ForecastPeriod,
 } from "../types/live-expedition.types";
 import { updateCheckpointStatuses } from "./updateCheckpointStatuses";
 import { calculateCurrentCheckpointIndex } from "./calculateCurrentCheckpointIndex";
@@ -123,6 +124,22 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
   );
   const commsStatus = getCommsStatus(alerts.communicationAlert);
 
+  // Fetch weather alerts and generate forecast
+  const weatherAlerts = getWeather(expeditionId);
+  const weatherForecast: ForecastPeriod[] = [];
+  for (let i = 0; i < 6; i++) {
+    const forecastTime = new Date(Date.now() + i * 60 * 60 * 1000); // Every hour
+    const windTrend = -5 + Math.random() * 10; // Simulate trend
+    const tempTrend = -2 + Math.random() * 4;
+    weatherForecast.push({
+      timestamp: forecastTime,
+      condition: weather.condition,
+      windSpeed: Math.max(0, weather.windSpeed + windTrend * (i + 1)),
+      temperature: weather.temperature + tempTrend * (i + 1),
+      visibility: Math.min(20, weather.visibility + (Math.random() - 0.3)),
+    });
+  }
+
   return {
     expeditionId,
     status: "in-transit",
@@ -136,6 +153,8 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
       commsStatus,
       alerts,
     },
+    weatherAlerts,
+    weatherForecast,
     currentCheckpointIndex,
     progressPct,
     currentLocation: {
