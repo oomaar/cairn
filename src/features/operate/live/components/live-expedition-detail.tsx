@@ -11,6 +11,7 @@ import { ExpeditionHealth } from "./expedition-health";
 import { ExpeditionAnnunciator } from "./expedition-annunciator";
 import { Anemometer } from "./anemometer";
 import { WeatherAlerts } from "./weather-alerts";
+import { WeatherForecast } from "./weather-forecast";
 
 interface LiveExpeditionModalProps {
   expeditionId: string;
@@ -113,6 +114,12 @@ export function LiveExpeditionDetail({
             <WeatherAlerts
               alerts={state.weatherAlerts}
               expeditionId={expeditionId}
+            />
+
+            {/* Forecast Timeline */}
+            <WeatherForecast
+              forecast={state.weatherForecast}
+              windThreshold={40}
             />
 
             {/* Participant Telemetry */}
