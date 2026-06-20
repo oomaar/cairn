@@ -33,6 +33,7 @@ export const WORLDS: readonly World[] = [
     modules: [
       { key: "command", label: "Command" },
       { key: "live", label: "Live" },
+      { key: "weather", label: "Weather" },
       { key: "risk", label: "Risk" },
       { key: "equipment", label: "Equipment" },
     ],
@@ -55,9 +56,11 @@ export const WORLDS: readonly World[] = [
 ] as const;
 
 /** Worlds keyed by id for O(1) lookup. */
-export const WORLD_BY_KEY: Readonly<Record<WorldKey, World>> = Object.fromEntries(
-  WORLDS.map((world) => [world.key, world]),
-) as Record<WorldKey, World>;
+export const WORLD_BY_KEY: Readonly<Record<WorldKey, World>> =
+  Object.fromEntries(WORLDS.map((world) => [world.key, world])) as Record<
+    WorldKey,
+    World
+  >;
 
 /** The world the app opens on. */
 export const DEFAULT_WORLD: WorldKey = "plan";
