@@ -110,7 +110,10 @@ export function LiveExpeditionDetail({
             />
 
             {/* Weather Alerts */}
-            <WeatherAlerts alerts={state.weatherAlerts} />
+            <WeatherAlerts
+              alerts={state.weatherAlerts}
+              expeditionId={expeditionId}
+            />
 
             {/* Participant Telemetry */}
             <ParticipantTelemetry participants={state.participants} />

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Text } from "@/components/ui";
 import type { WeatherAlert } from "@/universe";
@@ -9,9 +10,14 @@ import { WEATHER_ICONS } from "../data/WEATHER_ICONS";
 interface WeatherAlertsProps {
   alerts: WeatherAlert[];
   limit?: number;
+  expeditionId?: string;
 }
 
-export function WeatherAlerts({ alerts, limit = 5 }: WeatherAlertsProps) {
+export function WeatherAlerts({
+  alerts,
+  limit = 5,
+  expeditionId,
+}: WeatherAlertsProps) {
   if (alerts.length === 0) {
     return (
       <div className="rounded-lg border border-border p-3">
@@ -42,9 +48,19 @@ export function WeatherAlerts({ alerts, limit = 5 }: WeatherAlertsProps) {
 
   return (
     <div className="rounded-lg border border-border p-3">
-      <Text variant="caption" tone="tertiary" className="mb-2">
-        Weather Alerts ({alerts.length})
-      </Text>
+      <div className="flex items-center justify-between mb-2">
+        <Text variant="caption" tone="tertiary">
+          Weather Alerts ({alerts.length})
+        </Text>
+        {expeditionId && (
+          <Link
+            href={`/operate/weather`}
+            className="text-2xs text-accent hover:text-accent-hover transition-colors font-medium"
+          >
+            View all
+          </Link>
+        )}
+      </div>
       <div className="space-y-2">
         {displayed.map((alert) => (
           <div
