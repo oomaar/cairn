@@ -100,3 +100,5 @@ export interface ExpeditionUpdate {
   type: "position" | "weather" | "incident" | "status" | "crew";
   data: Record<string, unknown>;
 }
+
+export type CellVariant = "danger" | "warn" | "ok" | "inactive";
