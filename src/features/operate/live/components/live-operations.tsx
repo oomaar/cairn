@@ -45,7 +45,7 @@ function LiveWorkspace({
         </div>
         {/* Dial is centered and capped so it reads as an instrument, not a stretch */}
         <div className="flex min-h-0 items-center justify-center overflow-hidden border-b border-border p-4 lg:border-b-0">
-          <div className="w-full max-w-[300px]">
+          <div className="w-full max-w-75">
             <LiveWindPanel windSpeed={state.weather.windSpeed} />
           </div>
         </div>
