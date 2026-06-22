@@ -32,9 +32,10 @@ function LiveWorkspace({
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      {/* Top row: Situation + Wind instrument */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+    // 60/40 vertical split — top instruments dominant, bottom panels supporting
+    <div className="grid min-h-0 flex-1 grid-rows-[3fr_2fr] overflow-hidden">
+      {/* Top row: Situation schematic + Wind dial */}
+      <div className="grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-2">
         <div className="flex min-h-0 overflow-hidden border-b border-border p-4 lg:border-b-0 lg:border-r">
           <LiveSituationPanel
             state={state}
@@ -42,22 +43,27 @@ function LiveWorkspace({
             distanceKm={distanceKm}
           />
         </div>
-        <div className="overflow-y-auto border-b border-border p-4">
-          <LiveWindPanel windSpeed={state.weather.windSpeed} />
+        {/* Dial is centered and capped so it reads as an instrument, not a stretch */}
+        <div className="flex min-h-0 items-center justify-center overflow-hidden border-b border-border p-4 lg:border-b-0">
+          <div className="w-full max-w-[300px]">
+            <LiveWindPanel windSpeed={state.weather.windSpeed} />
+          </div>
         </div>
       </div>
 
       {/* Bottom row: Annunciator + Comms | Participant Telemetry */}
-      <div className="grid flex-none grid-cols-1 lg:grid-cols-2">
-        <div className="flex flex-col border-b border-border lg:border-b-0 lg:border-r">
+      <div className="grid min-h-0 grid-cols-1 overflow-hidden border-t border-border lg:grid-cols-2">
+        {/* Left column: annunciator fixed, comms scrolls remaining space */}
+        <div className="grid min-h-0 grid-rows-[auto_1fr] overflow-hidden border-b border-border lg:border-b-0 lg:border-r">
           <div className="border-b border-border p-4">
             <LiveAnnunciatorPanel state={state} />
           </div>
-          <div className="p-4">
+          <div className="min-h-0 overflow-y-auto p-4">
             <LiveCommsPanel expeditionId={expeditionId} />
           </div>
         </div>
-        <div className="overflow-y-auto p-4">
+        {/* Right column: telemetry scrolls */}
+        <div className="min-h-0 overflow-y-auto p-4">
           <ParticipantTelemetry participants={state.participants} />
         </div>
       </div>
