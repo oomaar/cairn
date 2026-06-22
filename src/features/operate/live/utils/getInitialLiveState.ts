@@ -1,4 +1,4 @@
-import { getCheckpoints, getRoster, getWeather } from "@/universe";
+import { getCheckpoints, getExpedition, getRoster, getWeather } from "@/universe";
 import type {
   LiveExpeditionState,
   LiveParticipant,
@@ -14,7 +14,16 @@ import { calculateRiskLevel } from "./calculateRiskLevel";
 import { calculateReadinessScore } from "./calculateReadinessScore";
 import { generateStatusAlerts } from "./generateStatusAlerts";
 
+function idHash(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h = Math.imul(h ^ id.charCodeAt(i), 16777619) >>> 0;
+  }
+  return h;
+}
+
 export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
+  const expedition = getExpedition(expeditionId);
   const universalCheckpoints = getCheckpoints(expeditionId);
   const roster = getRoster(expeditionId);
 
@@ -63,8 +72,32 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
           createMockParticipant(4, "Sam Martinez", "SM", "participant"),
         ];
 
-  // Simulate initial progress at 32%
-  const progressPct = 32;
+  // Deterministic per-expedition values derived from the expedition ID
+  const h = idHash(expeditionId);
+
+  // Progress: spread expeditions across 15–65% of route completion
+  const progressPct = 15 + (h % 51);
+
+  // Wind speed: base 8–57 km/h, boosted by danger weather alerts
+  const weatherAlerts = getWeather(expeditionId);
+  const dangerCount = weatherAlerts.filter((a) => a.tone === "danger").length;
+  const windSpeed = Math.min(95, 8 + (h % 50) + dangerCount * 10);
+
+  // Condition: worse when there are active danger alerts
+  const CONDITIONS = [
+    "clear",
+    "cloudy",
+    "rain",
+    "snow",
+    "wind",
+    "storm",
+  ] as const;
+  const conditionIdx = dangerCount > 0 ? 3 + ((h >> 2) % 3) : (h >> 2) % 3;
+  const condition = CONDITIONS[conditionIdx]!;
+
+  // Temperature: cooler at higher elevation (~3°C per 500 m)
+  const maxElev = Math.max(...universalCheckpoints.map((c) => c.elevationM), 500);
+  const temperature = Math.round(18 - maxElev / 500 + ((h >> 6) % 9) - 4);
 
   // Update checkpoint statuses based on progress
   const statusedCheckpoints = updateCheckpointStatuses(
@@ -78,22 +111,29 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
     currentCheckpointIndex,
   );
 
-  // Initial weather and party status
   const weather: {
     condition: "clear" | "cloudy" | "rain" | "snow" | "wind" | "storm";
     temperature: number;
     windSpeed: number;
     visibility: number;
   } = {
-    condition: "cloudy",
-    temperature: 8,
-    windSpeed: 22,
-    visibility: 1.5,
+    condition,
+    temperature,
+    windSpeed,
+    visibility: Math.max(0.4, 8 - dangerCount * 2 - ((h >> 8) % 4)),
   };
   const partyStatus = {
     healthy: 0.7,
     fatigued: 0.25,
     injured: 0.05,
+  };
+
+  // Current location: use the actual checkpoint's coordinates/elevation
+  const curCheckpoint = statusedCheckpoints[currentCheckpointIndex];
+  const currentLocation = {
+    lat: expedition?.coordinates.lat ?? -50.95,
+    lng: expedition?.coordinates.lng ?? -73.15,
+    elevation: curCheckpoint?.elevationM ?? 1240,
   };
 
   // Calculate expedition status
@@ -124,8 +164,7 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
   );
   const commsStatus = getCommsStatus(alerts.communicationAlert);
 
-  // Fetch weather alerts and generate forecast
-  const weatherAlerts = getWeather(expeditionId);
+  // Fetch weather alerts and generate forecast (weatherAlerts already fetched above)
   const weatherForecast: ForecastPeriod[] = [];
   for (let i = 0; i < 6; i++) {
     const forecastTime = new Date(Date.now() + i * 60 * 60 * 1000); // Every hour
@@ -157,11 +196,7 @@ export function getInitialLiveState(expeditionId: string): LiveExpeditionState {
     weatherForecast,
     currentCheckpointIndex,
     progressPct,
-    currentLocation: {
-      lat: -50.95,
-      lng: -73.15,
-      elevation: 1240,
-    },
+    currentLocation,
     partyStatus,
     weather,
     incidents: [],
