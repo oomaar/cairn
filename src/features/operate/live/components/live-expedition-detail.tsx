@@ -9,7 +9,6 @@ import { CheckpointTimeline } from "./checkpoint-timeline";
 import { ParticipantTelemetry } from "./participant-telemetry";
 import { ExpeditionHealth } from "./expedition-health";
 import { ExpeditionAnnunciator } from "./expedition-annunciator";
-import { Anemometer } from "./anemometer";
 import { WeatherAlerts } from "./weather-alerts";
 import { WeatherForecast } from "./weather-forecast";
 import { ExpeditionEvents } from "./expedition-events";
@@ -103,12 +102,6 @@ export function LiveExpeditionDetail({
             <CheckpointTimeline
               checkpoints={state.checkpoints}
               currentIndex={state.currentCheckpointIndex}
-            />
-
-            {/* Anemometer */}
-            <Anemometer
-              windSpeed={state.weather.windSpeed}
-              windThreshold={40}
             />
 
             {/* Weather Alerts */}
