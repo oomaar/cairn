@@ -12,6 +12,7 @@ import { ExpeditionAnnunciator } from "./expedition-annunciator";
 import { Anemometer } from "./anemometer";
 import { WeatherAlerts } from "./weather-alerts";
 import { WeatherForecast } from "./weather-forecast";
+import { ExpeditionEvents } from "./expedition-events";
 
 interface LiveExpeditionModalProps {
   expeditionId: string;
@@ -220,60 +221,8 @@ export function LiveExpeditionDetail({
               </div>
             </div>
 
-            {/* Incidents */}
-            {state.incidents.length > 0 && (
-              <div className="space-y-2">
-                <Text variant="caption" tone="tertiary">
-                  Recent Updates
-                </Text>
-                <div className="space-y-1">
-                  {state.incidents.slice(0, 5).map((incident) => (
-                    <div
-                      key={incident.id}
-                      className={cn(
-                        "rounded px-2.5 py-1.5 border",
-                        incident.severity === "critical"
-                          ? "border-danger bg-danger/5"
-                          : incident.severity === "warning"
-                            ? "border-warn bg-warn/5"
-                            : "border-border-soft bg-surface",
-                      )}
-                    >
-                      <div className="flex items-start gap-2">
-                        <Icon
-                          name={
-                            incident.severity === "critical"
-                              ? "alert"
-                              : "activity"
-                          }
-                          size={12}
-                          className={cn(
-                            "mt-0.5 flex-none",
-                            incident.severity === "critical" && "text-danger",
-                            incident.severity === "warning" && "text-warn",
-                          )}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <Text
-                            variant="caption"
-                            className="block font-semibold"
-                          >
-                            {incident.title}
-                          </Text>
-                          <Text
-                            variant="caption"
-                            tone="tertiary"
-                            className="block text-2xs"
-                          >
-                            {incident.description}
-                          </Text>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Expedition Events */}
+            <ExpeditionEvents expeditionId={expeditionId} />
           </div>
         </div>
       </div>
