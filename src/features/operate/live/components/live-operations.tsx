@@ -8,6 +8,9 @@ import { getInitialLiveState } from "../utils/getInitialLiveState";
 import { useLiveExpeditionUpdates } from "../hooks/use-live-expedition-updates";
 import { LiveSituationPanel } from "./live-situation-panel";
 import { LiveWindPanel } from "./live-wind-panel";
+import { LiveAnnunciatorPanel } from "./live-annunciator-panel";
+import { LiveCommsPanel } from "./live-comms-panel";
+import { ParticipantTelemetry } from "./participant-telemetry";
 import { LiveExpeditionDetail } from "./live-expedition-detail";
 
 interface LiveWorkspaceProps {
@@ -29,16 +32,34 @@ function LiveWorkspace({
   );
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
-      <div className="flex min-h-0 overflow-hidden border-b border-border p-4 lg:border-b-0 lg:border-r">
-        <LiveSituationPanel
-          state={state}
-          expeditionName={expeditionName}
-          distanceKm={distanceKm}
-        />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {/* Top row: Situation + Wind instrument */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+        <div className="flex min-h-0 overflow-hidden border-b border-border p-4 lg:border-b-0 lg:border-r">
+          <LiveSituationPanel
+            state={state}
+            expeditionName={expeditionName}
+            distanceKm={distanceKm}
+          />
+        </div>
+        <div className="overflow-y-auto border-b border-border p-4">
+          <LiveWindPanel windSpeed={state.weather.windSpeed} />
+        </div>
       </div>
-      <div className="overflow-y-auto p-4">
-        <LiveWindPanel windSpeed={state.weather.windSpeed} />
+
+      {/* Bottom row: Annunciator + Comms | Participant Telemetry */}
+      <div className="grid flex-none grid-cols-1 lg:grid-cols-2">
+        <div className="flex flex-col border-b border-border lg:border-b-0 lg:border-r">
+          <div className="border-b border-border p-4">
+            <LiveAnnunciatorPanel state={state} />
+          </div>
+          <div className="p-4">
+            <LiveCommsPanel expeditionId={expeditionId} />
+          </div>
+        </div>
+        <div className="overflow-y-auto p-4">
+          <ParticipantTelemetry participants={state.participants} />
+        </div>
       </div>
     </div>
   );
