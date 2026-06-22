@@ -4,6 +4,7 @@ import { listRisks } from "@/universe";
 import { RiskAnnunciator } from "./risk-annunciator";
 import { RiskCard } from "./risk-card";
 import { RiskIncidentLog } from "./risk-incident-log";
+import { RiskSummary } from "./risk-summary";
 
 export function RiskCenter() {
   const risks = listRisks();
@@ -14,6 +15,7 @@ export function RiskCenter() {
         <div className="w-full grid gap-4 grid-cols-1 lg:grid-cols-[1fr_300px] items-start">
           {/* Left column: annunciator + risk cards */}
           <div className="flex flex-col gap-4">
+            <RiskSummary />
             <RiskAnnunciator />
             {risks.map((risk) => (
               <RiskCard key={risk.id} risk={risk} />
