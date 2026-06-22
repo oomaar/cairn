@@ -1,96 +1,122 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/cn";
 import { Text } from "@/components/ui";
 import { listExpeditions } from "@/universe";
+import { getInitialLiveState } from "../utils/getInitialLiveState";
+import { useLiveExpeditionUpdates } from "../hooks/use-live-expedition-updates";
+import { LiveSituationPanel } from "./live-situation-panel";
+import { LiveWindPanel } from "./live-wind-panel";
 import { LiveExpeditionDetail } from "./live-expedition-detail";
 
+interface LiveWorkspaceProps {
+  expeditionId: string;
+  expeditionName: string;
+  distanceKm: number;
+}
+
+// Separate component so `key` can force a full remount (fresh hook state)
+// whenever the focused expedition changes.
+function LiveWorkspace({
+  expeditionId,
+  expeditionName,
+  distanceKm,
+}: LiveWorkspaceProps) {
+  const state = useLiveExpeditionUpdates(
+    expeditionId,
+    getInitialLiveState(expeditionId),
+  );
+
+  return (
+    <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+      <div className="flex min-h-0 overflow-hidden border-b border-border p-4 lg:border-b-0 lg:border-r">
+        <LiveSituationPanel
+          state={state}
+          expeditionName={expeditionName}
+          distanceKm={distanceKm}
+        />
+      </div>
+      <div className="overflow-y-auto p-4">
+        <LiveWindPanel windSpeed={state.weather.windSpeed} />
+      </div>
+    </div>
+  );
+}
+
 export function LiveOperations() {
-  const [selectedExpeditionId, setSelectedExpeditionId] = useState<
-    string | null
-  >(null);
   const expeditions = listExpeditions();
-  const activeExpeditions = expeditions.slice(0, 3); // Show first 3 as active for demo
+  const activeExpeditions = expeditions.slice(0, 3);
+
+  const [focusedId, setFocusedId] = useState(activeExpeditions[0]?.id ?? "");
+  const [detailId, setDetailId] = useState<string | null>(null);
+
+  const focusedExpedition = activeExpeditions.find((e) => e.id === focusedId);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* Header */}
-      <div className="flex-none border-b border-border px-5 py-4">
-        <Text variant="title" className="text-lg">
-          Live Operations
-        </Text>
-        <Text variant="caption" tone="tertiary" className="mt-1">
-          {activeExpeditions.length} active expeditions
-        </Text>
-      </div>
-
-      {/* Expeditions Grid */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-5">
-        <div className="space-y-3">
+      {/* Expedition selector tabs */}
+      <div className="flex flex-none items-center border-b border-border">
+        <div className="flex items-center gap-3 overflow-x-auto px-5 py-3">
+          <Text
+            variant="caption"
+            tone="tertiary"
+            className="flex-none font-mono text-2xs uppercase tracking-widest"
+          >
+            Active
+          </Text>
           {activeExpeditions.map((expedition) => (
             <button
               key={expedition.id}
-              onClick={() => setSelectedExpeditionId(expedition.id)}
-              className="w-full rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:border-accent-line hover:bg-raised"
+              onClick={() => setFocusedId(expedition.id)}
+              className={cn(
+                "flex flex-none items-center gap-2 rounded border px-3 py-1.5 font-mono text-2xs font-bold tracking-wider transition-colors",
+                focusedId === expedition.id
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-border text-fg-3 hover:border-fg-3 hover:text-fg-2",
+              )}
             >
-              <div className="flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <Text variant="body-sm" className="font-semibold">
-                    {expedition.name}
-                  </Text>
-                  <Text variant="caption" tone="tertiary" className="mt-0.5">
-                    {expedition.region}, {expedition.country}
-                  </Text>
-                </div>
-                <div className="ml-2 flex-none">
-                  <div className="flex items-center gap-1 rounded bg-accent/10 px-2 py-1">
-                    <div className="size-2 rounded-full bg-accent animate-pulse" />
-                    <Text
-                      variant="caption"
-                      className="text-accent-bright font-semibold"
-                    >
-                      Live
-                    </Text>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex gap-4">
-                <div>
-                  <Text variant="caption" tone="tertiary" className="text-2xs">
-                    Distance
-                  </Text>
-                  <Text className="font-mono text-sm">
-                    {expedition.distanceKm} km
-                  </Text>
-                </div>
-                <div>
-                  <Text variant="caption" tone="tertiary" className="text-2xs">
-                    Elevation
-                  </Text>
-                  <Text className="font-mono text-sm">
-                    ▲{expedition.gainM.toLocaleString()} m
-                  </Text>
-                </div>
-                <div>
-                  <Text variant="caption" tone="tertiary" className="text-2xs">
-                    Days
-                  </Text>
-                  <Text className="font-mono text-sm">
-                    {expedition.dayTotal}
-                  </Text>
-                </div>
-              </div>
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  focusedId === expedition.id
+                    ? "animate-pulse bg-accent"
+                    : "bg-fg-4",
+                )}
+              />
+              {expedition.name.toUpperCase().slice(0, 22)}
             </button>
           ))}
         </div>
+
+        <button
+          onClick={() => setDetailId(focusedId)}
+          className="ml-auto flex-none border-l border-border px-4 py-3 font-mono text-2xs text-fg-3 transition-colors hover:bg-raised hover:text-fg-2"
+        >
+          DETAIL →
+        </button>
       </div>
 
-      {/* Live Detail Modal */}
-      {selectedExpeditionId && (
+      {/* Workspace — key forces remount on expedition switch */}
+      {focusedExpedition ? (
+        <LiveWorkspace
+          key={focusedId}
+          expeditionId={focusedId}
+          expeditionName={focusedExpedition.name}
+          distanceKm={focusedExpedition.distanceKm}
+        />
+      ) : (
+        <div className="flex flex-1 items-center justify-center">
+          <Text variant="caption" tone="tertiary" className="text-2xs">
+            No active expeditions
+          </Text>
+        </div>
+      )}
+
+      {detailId && (
         <LiveExpeditionDetail
-          expeditionId={selectedExpeditionId}
-          onClose={() => setSelectedExpeditionId(null)}
+          expeditionId={detailId}
+          onClose={() => setDetailId(null)}
         />
       )}
     </div>
