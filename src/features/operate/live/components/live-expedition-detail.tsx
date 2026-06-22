@@ -6,9 +6,7 @@ import { useLiveExpeditionUpdates } from "../hooks/use-live-expedition-updates";
 import { listExpeditions } from "@/universe";
 import { CONDITION_EMOJI } from "../data/CONDITION_EMOJI";
 import { CheckpointTimeline } from "./checkpoint-timeline";
-import { ParticipantTelemetry } from "./participant-telemetry";
 import { ExpeditionHealth } from "./expedition-health";
-import { ExpeditionAnnunciator } from "./expedition-annunciator";
 import { WeatherAlerts } from "./weather-alerts";
 import { WeatherForecast } from "./weather-forecast";
 import { ExpeditionEvents } from "./expedition-events";
@@ -76,9 +74,6 @@ export function LiveExpeditionDetail({
             {/* Expedition Health */}
             <ExpeditionHealth status={state.expeditionStatus} />
 
-            {/* Annunciator */}
-            <ExpeditionAnnunciator status={state.expeditionStatus} />
-
             {/* Progress Bar */}
             <div className="space-y-1">
               <div className="flex justify-between">
@@ -115,9 +110,6 @@ export function LiveExpeditionDetail({
               forecast={state.weatherForecast}
               windThreshold={40}
             />
-
-            {/* Participant Telemetry */}
-            <ParticipantTelemetry participants={state.participants} />
 
             {/* Location & Weather */}
             <div className="grid grid-cols-2 gap-3">
