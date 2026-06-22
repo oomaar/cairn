@@ -10,24 +10,36 @@ interface AnemometerProps {
 }
 
 export function Anemometer({ windSpeed, windThreshold = 40 }: AnemometerProps) {
-  // Convert wind speed to degrees for needle (0-180 degrees for 0-100 km/h)
   const maxKmh = 100;
-  const needleRotation = (Math.min(windSpeed, maxKmh) / maxKmh) * 180;
+  const pct = Math.min(windSpeed / maxKmh, 1) * 100;
+  const threshPct = Math.min(windThreshold / maxKmh, 1) * 100;
+  const isExceeded = windSpeed > windThreshold;
 
-  // Determine wind direction (simulate based on seed)
   const directionIndex = Math.floor(windSpeed % 16);
   const direction = CARDINAL_DIRECTIONS[directionIndex];
 
-  // Determine if threshold is exceeded
-  const isExceeded = windSpeed > windThreshold;
-
-  // Determine color zones
-  const getArcColor = (percentage: number) => {
-    if (percentage < (windThreshold / maxKmh) * 100) {
-      return "rgba(34, 197, 94, 0.3)"; // Green for safe zone
-    }
-    return "rgba(239, 68, 68, 0.3)"; // Red for danger zone
+  // 270° sweep: start bottom-left (135°), clockwise to bottom-right (405° = 45°)
+  const R = 78,
+    cx = 100,
+    cy = 100;
+  const a0 = 135,
+    a1 = 405;
+  const r4 = (n: number) => Math.round(n * 1e4) / 1e4;
+  const ang = (v: number) => ((a0 + (v / 100) * (a1 - a0)) * Math.PI) / 180;
+  const pt = (v: number, r: number): [number, number] => [
+    r4(cx + Math.cos(ang(v)) * r),
+    r4(cy + Math.sin(ang(v)) * r),
+  ];
+  const arc = (v0: number, v1: number, r: number): string => {
+    const [x0, y0] = pt(v0, r);
+    const [x1, y1] = pt(v1, r);
+    const large = ((v1 - v0) / 100) * 270 > 180 ? 1 : 0;
+    return `M${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
   };
+
+  const [npx, npy] = pt(pct, R - 12);
+  const [tx0, ty0] = pt(threshPct, R - 10);
+  const [tx1, ty1] = pt(threshPct, R + 10);
 
   return (
     <div
@@ -36,109 +48,133 @@ export function Anemometer({ windSpeed, windThreshold = 40 }: AnemometerProps) {
         isExceeded ? "border-danger bg-danger/5" : "border-border bg-surface",
       )}
     >
-      <Text variant="caption" tone="tertiary" className="block mb-3">
+      <Text
+        variant="caption"
+        tone="tertiary"
+        className="mb-2 block font-mono text-2xs uppercase tracking-widest"
+      >
         Wind Conditions
       </Text>
 
-      {/* Anemometer Gauge */}
-      <div className="flex flex-col items-center justify-center mb-4">
-        <svg viewBox="0 0 200 120" className="w-full max-w-xs h-24">
-          {/* Background arc */}
-          <path
-            d="M 20 100 A 80 80 0 0 1 180 100"
-            stroke={getArcColor(50)}
-            strokeWidth="8"
-            fill="none"
-            strokeLinecap="round"
-          />
+      <svg viewBox="0 0 200 190" className="block w-full">
+        {/* Gray track background */}
+        <path
+          d={arc(0, 100, R)}
+          fill="none"
+          stroke="var(--border-strong)"
+          strokeWidth="8"
+        />
+        {/* Safe zone */}
+        <path
+          d={arc(0, threshPct, R)}
+          fill="none"
+          stroke="var(--ok)"
+          strokeWidth="8"
+          opacity="0.5"
+        />
+        {/* Danger zone */}
+        <path
+          d={arc(threshPct, 100, R)}
+          fill="none"
+          stroke="var(--danger)"
+          strokeWidth="8"
+          opacity="0.55"
+        />
 
-          {/* Threshold line (at 50%) */}
-          <line
-            x1="100"
-            y1="100"
-            x2="100"
-            y2="25"
-            stroke="rgba(239, 68, 68, 0.5)"
-            strokeWidth="2"
-            strokeDasharray="3,3"
-          />
-
-          {/* Needle */}
-          <g transform={`rotate(${needleRotation} 100 100)`}>
+        {/* Tick marks at 0 / 25 / 50 / 75 / 100 */}
+        {[0, 25, 50, 75, 100].map((v) => {
+          const [x0, y0] = pt(v, R - 6);
+          const [x1, y1] = pt(v, R + 6);
+          return (
             <line
-              x1="100"
-              y1="100"
-              x2="100"
-              y2="30"
-              stroke={isExceeded ? "rgb(239, 68, 68)" : "rgb(34, 197, 94)"}
-              strokeWidth="3"
-              strokeLinecap="round"
+              key={v}
+              x1={x0}
+              y1={y0}
+              x2={x1}
+              y2={y1}
+              stroke="var(--fg-4)"
+              strokeWidth="1.5"
             />
-            <circle
-              cx="100"
-              cy="100"
-              r="5"
-              fill={isExceeded ? "rgb(239, 68, 68)" : "rgb(34, 197, 94)"}
-            />
-          </g>
+          );
+        })}
 
-          {/* Scale labels */}
-          <text
-            x="25"
-            y="115"
-            fontSize="10"
-            fill="currentColor"
-            textAnchor="middle"
-          >
-            0
-          </text>
-          <text
-            x="100"
-            y="115"
-            fontSize="10"
-            fill="currentColor"
-            textAnchor="middle"
-          >
-            50
-          </text>
-          <text
-            x="175"
-            y="115"
-            fontSize="10"
-            fill="currentColor"
-            textAnchor="middle"
-          >
-            100
-          </text>
-        </svg>
-      </div>
+        {/* Scale labels at 0 / 50 / 100 */}
+        {[0, 50, 100].map((v) => {
+          const [x, y] = pt(v, R + 18);
+          return (
+            <text
+              key={v}
+              x={x}
+              y={y + 3}
+              fontSize="10"
+              fontFamily="ui-monospace, monospace"
+              textAnchor="middle"
+              fill={v >= threshPct ? "var(--danger)" : "var(--fg-4)"}
+            >
+              {v}
+            </text>
+          );
+        })}
 
-      {/* Current Reading */}
-      <div className="text-center mb-3">
-        <Text className="font-mono font-bold text-lg">
-          {Math.round(windSpeed)} km/h · {direction}
-        </Text>
-        <Text variant="caption" tone="tertiary" className="text-2xs">
-          {windSpeed > 50
-            ? "Dangerous"
-            : windSpeed > 40
-              ? "Elevated"
-              : "Normal"}
-        </Text>
-      </div>
+        {/* Threshold marker line */}
+        <line
+          x1={tx0}
+          y1={ty0}
+          x2={tx1}
+          y2={ty1}
+          stroke="var(--danger)"
+          strokeWidth="2"
+        />
 
-      {/* Alert Banner */}
+        {/* Needle */}
+        <line
+          x1={cx}
+          y1={cy}
+          x2={npx}
+          y2={npy}
+          stroke={isExceeded ? "var(--danger)" : "var(--ok)"}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        {/* Pivot circle */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r="5"
+          fill="var(--bg-surface)"
+          stroke={isExceeded ? "var(--danger)" : "var(--ok)"}
+          strokeWidth="2"
+        />
+
+        {/* Numeric readout */}
+        <text
+          x={cx}
+          y={cy + 34}
+          fontSize="30"
+          fontWeight="700"
+          fontFamily="ui-monospace, monospace"
+          textAnchor="middle"
+          fill={isExceeded ? "var(--danger)" : "var(--fg-1)"}
+        >
+          {String(Math.round(windSpeed)).padStart(3, "0")}
+        </text>
+        {/* Unit and direction sub-label */}
+        <text
+          x={cx}
+          y={cy + 50}
+          fontSize="10"
+          fontFamily="ui-monospace, monospace"
+          textAnchor="middle"
+          fill="var(--fg-3)"
+        >
+          KM/H · {direction}
+        </text>
+      </svg>
+
       {isExceeded && (
-        <div className="rounded border border-danger bg-danger/5 px-3 py-2 text-center">
-          <Text className="text-sm font-semibold text-danger">
-            ⚠️ THRESHOLD {windThreshold} KM/H — EXCEEDED
-          </Text>
-          <Text
-            variant="caption"
-            tone="tertiary"
-            className="text-2xs block mt-0.5"
-          >
-            High wind condition - proceed with caution
+        <div className="mt-1 rounded border border-danger bg-danger/5 px-3 py-2 text-center">
+          <Text className="font-mono text-xs font-bold tracking-wide text-danger">
+            THRESHOLD {windThreshold} KM/H — EXCEEDED
           </Text>
         </div>
       )}
