@@ -13,6 +13,7 @@ import {
   RiskCenter,
   EquipmentTracking,
   WeatherAlertsCenter,
+  CommunicationsCenter,
 } from "@/features/operate";
 
 /** Pre-render every world/module route as static content. */
@@ -33,6 +34,7 @@ const WORKSPACES: Record<string, () => ReactNode> = {
   "operate/weather": () => <WeatherAlertsCenter />,
   "operate/risk": () => <RiskCenter />,
   "operate/equipment": () => <EquipmentTracking />,
+  "operate/comms": () => <CommunicationsCenter />,
 };
 
 /** A module workspace. Validates the world+module, then renders the real
