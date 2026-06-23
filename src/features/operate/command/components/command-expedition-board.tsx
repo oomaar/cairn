@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { listExpeditions } from "@/universe";
-import { LiveExpeditionDetail } from "../../live/components/live-expedition-detail";
+import { LiveExpeditionDetail } from "../../live/components/live-expedition-detail/live-expedition-detail";
 import { TONE_DOT } from "../data/TONE_DOT";
 import { TONE_BAR } from "../data/TONE_BAR";
 
@@ -26,7 +26,9 @@ export function CommandExpeditionBoard() {
           {expeditions.map((expedition) => {
             const progressPct =
               expedition.status === "in-field"
-                ? Math.round((expedition.dayCurrent / expedition.dayTotal) * 100)
+                ? Math.round(
+                    (expedition.dayCurrent / expedition.dayTotal) * 100,
+                  )
                 : expedition.readiness;
 
             return (
