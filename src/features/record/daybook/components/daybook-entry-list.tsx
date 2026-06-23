@@ -38,7 +38,7 @@ export function DaybookEntryList({ entries }: DaybookEntryListProps) {
 
       <div className="h-full min-h-0 overflow-y-auto">
         {/* Log sub-header — part of the page, not chrome */}
-        <div className="flex items-baseline gap-3 px-5 pb-3 pt-4">
+        <div className="flex items-baseline gap-3 pl-19 pr-5 pb-3 pt-4">
           <span className="font-sans text-base font-bold tracking-tight text-fg-1">
             Day log — entries
           </span>
@@ -55,7 +55,7 @@ export function DaybookEntryList({ entries }: DaybookEntryListProps) {
             {/* Day annotation — inline, no background, part of the paper */}
             <div
               className={cn(
-                "flex items-center gap-3 px-5 py-2",
+                "flex items-center gap-3 pl-19 pr-5 py-2",
                 i > 0 && "mt-1 border-t-2 border-dashed border-border/60",
               )}
             >
