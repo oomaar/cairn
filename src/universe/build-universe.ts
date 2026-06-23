@@ -1,6 +1,7 @@
 import {
   ANNOUNCEMENTS,
   COMMS,
+  DEBRIEFS,
   EXPEDITIONS,
   GEAR_CATALOG,
   INCIDENTS,
@@ -66,6 +67,7 @@ export function buildUniverse(seed: string = UNIVERSE_SEED): Universe {
 
   const risks = [...RISKS];
   const incidents = [...INCIDENTS];
+  const debriefs = [...DEBRIEFS];
   const comms = [...COMMS];
   const announcements = [...ANNOUNCEMENTS];
 
@@ -90,6 +92,7 @@ export function buildUniverse(seed: string = UNIVERSE_SEED): Universe {
     weather,
     risks,
     incidents,
+    debriefs,
     comms,
     announcements,
     logs,

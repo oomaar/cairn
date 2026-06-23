@@ -1,4 +1,5 @@
 import type { Announcement, CommMessage } from "./comms.types";
+import type { Debrief } from "./debrief.types";
 import type { Assignment, Expedition, Operator } from "./expedition.types";
 import type { GearAllocation, GearItem } from "./gear.types";
 import type { Incident } from "./incident.types";
@@ -24,6 +25,7 @@ export interface Universe {
   weather: WeatherAlert[];
   risks: Risk[];
   incidents: Incident[];
+  debriefs: Debrief[];
   comms: CommMessage[];
   announcements: Announcement[];
   logs: LogEntry[];

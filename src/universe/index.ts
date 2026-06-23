@@ -31,6 +31,7 @@ export {
   getGearManifest,
   getWeather,
   getIncidents,
+  getDebrief,
   getComms,
   getLogbook,
   listRisks,

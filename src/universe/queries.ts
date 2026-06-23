@@ -3,6 +3,7 @@ import type {
   Assignment,
   Checkpoint,
   CommMessage,
+  Debrief,
   Expedition,
   GearAllocation,
   GearItem,
@@ -31,6 +32,7 @@ interface Indexes {
   gearByExpedition: Map<Id, GearAllocation[]>;
   weatherByExpedition: Map<Id, WeatherAlert[]>;
   incidentsByExpedition: Map<Id, Incident[]>;
+  debriefByExpedition: Map<Id, Debrief>;
   commsByExpedition: Map<Id | null, CommMessage[]>;
   logsByExpedition: Map<Id, LogEntry[]>;
 }
@@ -52,6 +54,7 @@ function indexes(): Indexes {
     gearByExpedition: groupBy(u.gearAllocations, (g) => g.expeditionId),
     weatherByExpedition: groupBy(u.weather, (w) => w.expeditionId),
     incidentsByExpedition: groupBy(u.incidents, (i) => i.expeditionId),
+    debriefByExpedition: indexBy(u.debriefs, "expeditionId"),
     commsByExpedition: groupBy(u.comms, (c) => c.expeditionId),
     logsByExpedition: groupBy(u.logs, (l) => l.expeditionId),
   };
@@ -148,6 +151,10 @@ export function getWeather(expeditionId: Id): WeatherAlert[] {
 
 export function getIncidents(expeditionId: Id): Incident[] {
   return indexes().incidentsByExpedition.get(expeditionId) ?? [];
+}
+
+export function getDebrief(expeditionId: Id): Debrief | undefined {
+  return indexes().debriefByExpedition.get(expeditionId);
 }
 
 /** Comms for an expedition, or org-wide comms when expeditionId is null. */
