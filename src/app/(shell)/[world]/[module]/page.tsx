@@ -2,7 +2,19 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { WORLD_BY_KEY, WORLDS, type WorldKey } from "@/features/theme";
 import { ModulePlaceholder } from "@/features/shell";
-import { PlanBuilder, PlanExpeditions, RoutePlanningWorkspace } from "@/features/plan";
+import {
+  PlanBuilder,
+  PlanExpeditions,
+  RoutePlanningWorkspace,
+} from "@/features/plan";
+import {
+  LiveOperations,
+  CommandCenter,
+  RiskCenter,
+  EquipmentTracking,
+  WeatherAlertsCenter,
+  CommunicationsCenter,
+} from "@/features/operate";
 
 /** Pre-render every world/module route as static content. */
 export function generateStaticParams() {
@@ -17,6 +29,12 @@ const WORKSPACES: Record<string, () => ReactNode> = {
   "plan/route": () => <RoutePlanningWorkspace />,
   "plan/expeditions": () => <PlanExpeditions />,
   "plan/builder": () => <PlanBuilder />,
+  "operate/live": () => <LiveOperations />,
+  "operate/command": () => <CommandCenter />,
+  "operate/weather": () => <WeatherAlertsCenter />,
+  "operate/risk": () => <RiskCenter />,
+  "operate/equipment": () => <EquipmentTracking />,
+  "operate/comms": () => <CommunicationsCenter />,
 };
 
 /** A module workspace. Validates the world+module, then renders the real
