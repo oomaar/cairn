@@ -72,21 +72,21 @@ export function ParticipantRoster({ participants }: ParticipantRosterProps) {
               </div>
 
               {/* Pace */}
-              <div className="flex-none w-14 text-right">
+              <div className="hidden w-14 flex-none text-right sm:block">
                 <Text variant="caption" tone="tertiary">
                   {participant.pace}
                 </Text>
               </div>
 
               {/* Position */}
-              <div className="flex-none w-16 text-right">
+              <div className="hidden w-16 flex-none text-right sm:block">
                 <Text variant="caption" tone="tertiary">
                   {participant.relativePosition}
                 </Text>
               </div>
 
               {/* Battery */}
-              <div className="flex-none w-10 text-right font-mono">
+              <div className="hidden w-10 flex-none text-right font-mono sm:block">
                 {Math.round(participant.battery)}%
               </div>
 
