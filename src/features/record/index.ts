@@ -3,3 +3,4 @@ export { RecordMasthead } from "./components/record-masthead";
 export { HistoryWorkspace } from "./history/components/history-workspace";
 export { BriefingsWorkspace } from "./briefings/components/briefings-workspace";
 export { IncidentsWorkspace } from "./incidents/components/incidents-workspace";
+export { MetricsWorkspace } from "./metrics/components/metrics-workspace";
