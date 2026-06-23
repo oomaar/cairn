@@ -62,14 +62,14 @@ export function ParticipantTelemetry({
               </div>
 
               {/* Pace / Position */}
-              <div className="w-16 flex-none text-right">
+              <div className="hidden w-16 flex-none text-right sm:block">
                 <Text variant="caption" tone="tertiary" className="text-2xs">
                   {participant.pace}
                 </Text>
               </div>
 
               {/* Battery */}
-              <div className="w-12 flex-none text-right">
+              <div className="hidden w-12 flex-none text-right sm:block">
                 <Text
                   variant="caption"
                   tone="tertiary"
