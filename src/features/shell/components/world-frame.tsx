@@ -46,10 +46,10 @@ export function WorldFrame({ world, children }: WorldFrameProps) {
                 role="tab"
                 aria-selected={on}
                 className={cn(
-                  "flex items-center border-r border-b-2 px-4.5 text-2xs font-semibold uppercase tracking-[0.06em] transition-colors duration-150 ease-standard",
+                  "flex items-center border-b-2 px-4.5 text-2xs font-semibold uppercase tracking-[0.06em] transition-colors duration-150 ease-standard",
                   on
-                    ? "border-r-border border-b-accent bg-raised text-fg-1"
-                    : "border-r-border border-b-transparent text-fg-3 hover:text-fg-2",
+                    ? "border-b-accent text-fg-1"
+                    : "border-b-transparent text-fg-3 hover:text-fg-2",
                 )}
               >
                 {m.label}

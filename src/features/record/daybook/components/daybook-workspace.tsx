@@ -1,39 +1,57 @@
 "use client";
 
 import { Text } from "@/components/ui";
+import { getOperator } from "@/universe";
 import { aggregateLogs } from "../utils/aggregateLogs";
 import { DaybookEntryList } from "./daybook-entry-list";
 import { DaybookRegister } from "./daybook-register";
 
 export function DaybookWorkspace() {
   const entries = aggregateLogs();
+  const operator = getOperator();
 
-  const today = new Date().toLocaleDateString("en-GB", {
+  const folioNum = 400 + entries.length;
+  const dayLabel = new Date().toLocaleDateString("en-GB", {
     weekday: "short",
     day: "2-digit",
     month: "short",
     year: "numeric",
-  });
+  }).toUpperCase();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-none items-center justify-between border-b border-border px-5 py-4">
-        <div>
-          <Text variant="title" className="text-lg">
-            Expedition Daybook
-          </Text>
-          <Text variant="caption" tone="tertiary" className="mt-0.5 font-mono">
-            {entries.length} entries · {today}
-          </Text>
+      {/* Masthead */}
+      <div className="flex-none border-b-2 border-border px-6 py-4">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <Text
+              variant="caption"
+              tone="tertiary"
+              className="block font-mono text-2xs uppercase tracking-widest"
+            >
+              {operator.name} · The Record
+            </Text>
+            <h1 className="mt-1 font-sans text-2xl font-bold tracking-tight text-fg-1">
+              Expedition Daybook
+            </h1>
+          </div>
+          <div className="flex-none text-right">
+            <Text
+              variant="caption"
+              tone="tertiary"
+              className="block font-mono text-2xs uppercase tracking-wider"
+            >
+              Folio {folioNum} · {dayLabel}
+            </Text>
+            <Text
+              variant="caption"
+              tone="tertiary"
+              className="mt-0.5 font-mono text-2xs"
+            >
+              {entries.length} entries
+            </Text>
+          </div>
         </div>
-        <Text
-          variant="caption"
-          tone="tertiary"
-          className="font-mono text-2xs uppercase tracking-widest"
-        >
-          The Record
-        </Text>
       </div>
 
       {/* Body: entry list + register sidebar */}
