@@ -6,18 +6,23 @@ import { EXPEDITION_COLORS } from "../data/EXPEDITION_COLORS";
 interface DaybookLogStampProps {
   kind: LogKind;
   colorIndex: number;
+  rotate: string;
 }
 
-export function DaybookLogStamp({ kind, colorIndex }: DaybookLogStampProps) {
+export function DaybookLogStamp({
+  kind,
+  colorIndex,
+  rotate,
+}: DaybookLogStampProps) {
   const config = KIND_CONFIG[kind];
   const color = EXPEDITION_COLORS[colorIndex % EXPEDITION_COLORS.length]!;
   return (
     <span
       className={cn(
-        "flex-none rounded-sm border-2 px-1.75 py-0.5 font-mono text-3xs font-bold uppercase tracking-[0.08em] opacity-85",
+        "inline-block rounded-sm border-2 px-1.75 py-0.5 font-mono text-3xs font-bold uppercase tracking-[0.08em] opacity-85",
         color.border,
         color.text,
-        config.rotate,
+        rotate,
       )}
     >
       {config.stamp}

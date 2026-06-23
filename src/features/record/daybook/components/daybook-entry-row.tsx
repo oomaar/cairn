@@ -5,12 +5,14 @@ import type { EnrichedLogEntry } from "../types/daybook.types";
 
 interface DaybookEntryRowProps {
   entry: EnrichedLogEntry;
+  rowIndex: number;
 }
 
-export function DaybookEntryRow({ entry }: DaybookEntryRowProps) {
+export function DaybookEntryRow({ entry, rowIndex }: DaybookEntryRowProps) {
   const color = EXPEDITION_COLORS[entry.colorIndex % EXPEDITION_COLORS.length]!;
   const isIncident = entry.kind === "incident";
   const bodyText = entry.detail ?? entry.title;
+  const rotate = rowIndex % 2 ? "-rotate-2" : "rotate-3";
 
   return (
     <div className="flex items-start gap-4 pl-19 pr-5 py-2.75 transition-colors hover:bg-raised/50">
@@ -35,7 +37,7 @@ export function DaybookEntryRow({ entry }: DaybookEntryRowProps) {
 
       {/* Stamp */}
       <div className="flex-none pt-0.5">
-        <DaybookLogStamp kind={entry.kind} colorIndex={entry.colorIndex} />
+        <DaybookLogStamp kind={entry.kind} colorIndex={entry.colorIndex} rotate={rotate} />
       </div>
     </div>
   );
