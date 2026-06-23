@@ -12,11 +12,19 @@ export function aggregateLogs(): EnrichedLogEntry[] {
     const logs = getLogbook(expedition.id);
     logs.forEach((entry) => {
       const author = entry.authorId ? getPerson(entry.authorId) : undefined;
+      const authorShortName = author
+        ? (() => {
+            const parts = author.name.split(" ");
+            return parts.length > 1
+              ? `${parts[0]![0]}. ${parts.slice(1).join(" ")}`
+              : author.name;
+          })()
+        : null;
       entries.push({
         ...entry,
         expeditionName: expedition.name,
         colorIndex: index % 4,
-        authorInitials: author?.initials ?? null,
+        authorShortName,
       });
     });
   });
