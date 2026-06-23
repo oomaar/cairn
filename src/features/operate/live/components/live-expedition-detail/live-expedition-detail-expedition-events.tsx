@@ -62,11 +62,13 @@ const TONE_LABEL_COLOR: Record<string, string> = {
   slate: "text-fg-4",
 };
 
-interface ExpeditionEventsProps {
+interface LiveExpeditionDetailExpeditionEventsProps {
   expeditionId: string;
 }
 
-export function ExpeditionEvents({ expeditionId }: ExpeditionEventsProps) {
+export function LiveExpeditionDetailExpeditionEvents({
+  expeditionId,
+}: LiveExpeditionDetailExpeditionEventsProps) {
   const logs = getLogbook(expeditionId);
   const comms = getComms(expeditionId);
 

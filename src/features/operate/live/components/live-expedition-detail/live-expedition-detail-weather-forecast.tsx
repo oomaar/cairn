@@ -2,10 +2,10 @@
 
 import { Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { CONDITION_EMOJI } from "../data/CONDITION_EMOJI";
-import type { ForecastPeriod } from "../types/live-expedition.types";
+import { CONDITION_EMOJI } from "../../data/CONDITION_EMOJI";
+import type { ForecastPeriod } from "../../types/live-expedition.types";
 
-interface WeatherForecastProps {
+interface LiveExpeditionDetailWeatherForecastProps {
   forecast: ForecastPeriod[];
   windThreshold?: number;
 }
@@ -20,10 +20,10 @@ function isFavorable(period: ForecastPeriod, threshold: number): boolean {
   );
 }
 
-export function WeatherForecast({
+export function LiveExpeditionDetailWeatherForecast({
   forecast,
   windThreshold = 40,
-}: WeatherForecastProps) {
+}: LiveExpeditionDetailWeatherForecastProps) {
   if (forecast.length === 0) return null;
 
   const maxWind = Math.max(...forecast.map((p) => p.windSpeed), MAX_WIND);

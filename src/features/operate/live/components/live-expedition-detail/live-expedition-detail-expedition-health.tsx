@@ -2,13 +2,15 @@
 
 import { cn } from "@/lib/cn";
 import { Text } from "@/components/ui";
-import type { ExpeditionStatus } from "../types/live-expedition.types";
+import type { ExpeditionStatus } from "../../types/live-expedition.types";
 
-interface ExpeditionHealthProps {
+interface LiveExpeditionDetailExpeditionHealthProps {
   status: ExpeditionStatus;
 }
 
-export function ExpeditionHealth({ status }: ExpeditionHealthProps) {
+export function LiveExpeditionDetailExpeditionHealth({
+  status,
+}: LiveExpeditionDetailExpeditionHealthProps) {
   const getRiskColor = (level: "low" | "medium" | "high") => {
     switch (level) {
       case "high":

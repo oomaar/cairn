@@ -2,18 +2,18 @@
 
 import { cn } from "@/lib/cn";
 import { Text } from "@/components/ui";
-import type { LiveCheckpoint } from "../types/live-expedition.types";
-import { STATUS_DOT } from "../data/STATUS_DOT";
+import type { LiveCheckpoint } from "../../types/live-expedition.types";
+import { STATUS_DOT } from "../../data/STATUS_DOT";
 
-interface CheckpointTimelineProps {
+interface LiveExpeditionDetailCheckpointTimelineProps {
   checkpoints: LiveCheckpoint[];
   currentIndex: number;
 }
 
-export function CheckpointTimeline({
+export function LiveExpeditionDetailCheckpointTimeline({
   checkpoints,
   currentIndex,
-}: CheckpointTimelineProps) {
+}: LiveExpeditionDetailCheckpointTimelineProps) {
   if (checkpoints.length === 0) return null;
 
   return (

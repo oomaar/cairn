@@ -11,7 +11,7 @@ import { LiveWindPanel } from "./live-wind-panel";
 import { LiveAnnunciatorPanel } from "./live-annunciator-panel";
 import { LiveCommsPanel } from "./live-comms-panel";
 import { ParticipantTelemetry } from "./participant-telemetry";
-import { LiveExpeditionDetail } from "./live-expedition-detail";
+import { LiveExpeditionDetail } from "./live-expedition-detail/live-expedition-detail";
 
 interface LiveWorkspaceProps {
   expeditionId: string;

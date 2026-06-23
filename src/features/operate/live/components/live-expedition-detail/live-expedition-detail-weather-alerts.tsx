@@ -4,20 +4,20 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Text } from "@/components/ui";
 import type { WeatherAlert } from "@/universe";
-import { TONE_COLORS } from "../data/TONE_COLORS";
-import { WEATHER_ICONS } from "../data/WEATHER_ICONS";
+import { TONE_COLORS } from "../../data/TONE_COLORS";
+import { WEATHER_ICONS } from "../../data/WEATHER_ICONS";
 
-interface WeatherAlertsProps {
+interface LiveExpeditionDetailWeatherAlertsProps {
   alerts: WeatherAlert[];
   limit?: number;
   expeditionId?: string;
 }
 
-export function WeatherAlerts({
+export function LiveExpeditionDetailWeatherAlerts({
   alerts,
   limit = 5,
   expeditionId,
-}: WeatherAlertsProps) {
+}: LiveExpeditionDetailWeatherAlertsProps) {
   if (alerts.length === 0) {
     return (
       <div className="rounded-lg border border-border p-3">
