@@ -16,17 +16,17 @@ export function HistoryWorkspace() {
 
       <div className="h-full overflow-y-auto">
         {/* Sub-header */}
-        <div className="flex items-baseline gap-3 pb-4 pl-19 pr-9 pt-4">
+        <div className="flex items-baseline gap-3 pb-4 pl-5 pr-5 pt-4 sm:pl-19 sm:pr-9">
           <span className="font-sans text-base font-bold tracking-tight text-fg-1">
             Mission archive
           </span>
           <span className="font-mono text-2xs text-fg-3">
-            {completed.length} expeditions on file · {completionPct}% completion
+            {completed.length} expeditions · {completionPct}% completion
           </span>
         </div>
 
-        {/* Column headers */}
-        <div className="flex items-center gap-4 border-b-2 border-fg-2 pb-2 pl-19 pr-9">
+        {/* Column headers — desktop only, matches the lg: row layout */}
+        <div className="hidden items-center gap-4 border-b-2 border-fg-2 pb-2 pl-19 pr-9 lg:flex">
           <div className="w-24 flex-none font-mono text-3xs uppercase tracking-[0.12em] text-fg-3">
             Date
           </div>
@@ -43,6 +43,9 @@ export function HistoryWorkspace() {
             Status
           </div>
         </div>
+
+        {/* Mobile divider — replaces column header line at smaller sizes */}
+        <div className="border-b-2 border-fg-2 lg:hidden" />
 
         {completed.length === 0 ? (
           <div className="flex items-center justify-center p-16">
