@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { getLeader, getWeather } from "@/universe";
 import type { Expedition } from "@/universe";
-import { DocField } from "./doc-field";
+import { DocField } from "../../components/doc-field";
 import { RISK_BY_GRADE } from "../data/RISK_BY_GRADE";
 import { EQUIPMENT_BY_GRADE } from "../data/EQUIPMENT_BY_GRADE";
 
