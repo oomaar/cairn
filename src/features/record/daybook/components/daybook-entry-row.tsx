@@ -69,7 +69,7 @@ export function DaybookEntryRow({ entry }: DaybookEntryRowProps) {
       )}
 
       {/* Log stamp */}
-      <DaybookLogStamp kind={entry.kind} />
+      <DaybookLogStamp kind={entry.kind} colorIndex={entry.colorIndex} />
     </div>
   );
 }

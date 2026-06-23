@@ -11,12 +11,14 @@ export function DaybookWorkspace() {
   const operator = getOperator();
 
   const folioNum = 400 + entries.length;
-  const dayLabel = new Date().toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).toUpperCase();
+  const dayLabel = new Date()
+    .toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    .toUpperCase();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -57,7 +59,7 @@ export function DaybookWorkspace() {
       {/* Body: entry list + register sidebar */}
       <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_300px]">
         {/* Left: scrollable log entries */}
-        <div className="flex min-h-0 flex-col overflow-hidden border-b border-border lg:border-b-0 lg:border-r">
+        <div className="flex min-h-0 flex-col overflow-hidden border-b border-border lg:border-b-0 lg:border-r bg-[repeating-linear-gradient(var(--record-rule-faint)_0_1px,transparent_1px_30px)]">
           <DaybookEntryList entries={entries} />
         </div>
 

@@ -1,5 +1,4 @@
 import { cn } from "@/lib/cn";
-import { Text } from "@/components/ui";
 import { listExpeditions, computeKpis, getOperator } from "@/universe";
 import { EXPEDITION_COLORS } from "../data/EXPEDITION_COLORS";
 
@@ -11,10 +10,7 @@ export function DaybookRegister() {
   );
 
   const filledBlocks = Math.round((kpis.equipment.readyPct / 100) * 20);
-  const readinessLabel =
-    kpis.equipment.readyPct >= 80 ? "OPERATIONAL" : "DEGRADED";
-  const readinessColor =
-    kpis.equipment.readyPct >= 80 ? "text-ok" : "text-warn";
+  const score = Math.round(kpis.equipment.readyPct);
 
   const today = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -23,146 +19,79 @@ export function DaybookRegister() {
   });
 
   return (
-    <div className="flex h-full flex-col space-y-4 overflow-y-auto p-5">
-      {/* Header */}
-      <div>
-        <Text
-          variant="caption"
-          tone="tertiary"
-          className="block font-mono text-2xs uppercase tracking-widest"
-        >
-          Operations Register
-        </Text>
-        <Text
-          variant="caption"
-          tone="tertiary"
-          className="mt-0.5 font-mono text-2xs"
-        >
-          {operator.name}
-        </Text>
+    <div className="h-full overflow-y-auto bg-surface px-5 py-4">
+      {/* ── Operations Register ─────────────────── */}
+      <div className="mb-1 font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">
+        Operations Register
       </div>
 
-      {/* Expedition list */}
-      <div className="rounded-lg border border-border">
-        <div className="border-b border-border px-3 py-2">
-          <Text
-            variant="caption"
-            tone="tertiary"
-            className="font-mono text-2xs uppercase tracking-widest"
-          >
-            Active & Complete
-          </Text>
-        </div>
-        <div className="divide-y divide-border/50">
-          {expeditions.map((expedition, i) => {
-            const color = EXPEDITION_COLORS[i % EXPEDITION_COLORS.length]!;
-            const isField = expedition.status === "in-field";
-            return (
-              <div
-                key={expedition.id}
-                className="flex items-center gap-2.5 px-3 py-2.5"
-              >
-                <div
-                  className={cn("size-2 flex-none rounded-full", color.bar)}
-                />
-                <div className="min-w-0 flex-1">
-                  <Text className="block truncate text-xs font-semibold">
-                    {expedition.name}
-                  </Text>
-                  <Text
-                    variant="caption"
-                    tone="tertiary"
-                    className="font-mono text-2xs"
-                  >
-                    {expedition.filled} participants
-                  </Text>
+      <div className="divide-y divide-border">
+        {expeditions.map((expedition, i) => {
+          const color = EXPEDITION_COLORS[i % EXPEDITION_COLORS.length]!;
+          const isField = expedition.status === "in-field";
+          return (
+            <div
+              key={expedition.id}
+              className="flex items-center gap-2.5 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[13.5px] font-semibold leading-snug text-fg-1">
+                  {expedition.name}
                 </div>
-                <span
-                  className={cn(
-                    "flex-none rounded border px-1.5 py-0.5 font-mono text-2xs font-bold",
-                    isField
-                      ? "border-accent/40 text-accent"
-                      : "border-border text-fg-4",
-                  )}
-                >
-                  {isField ? "IN FIELD" : "COMPLETE"}
-                </span>
+                <div className="mt-0.5 font-mono text-[10.5px] text-fg-3">
+                  {expedition.filled} participants
+                </div>
               </div>
-            );
-          })}
-          {expeditions.length === 0 && (
-            <div className="px-3 py-4">
-              <Text
-                variant="caption"
-                tone="tertiary"
-                className="font-mono text-2xs"
+              {/* Stamp — matches entry row stamps */}
+              <span
+                className={cn(
+                  "flex-none rounded-sm border-2 px-1.75 py-0.5 font-mono text-3xs font-bold uppercase tracking-[0.08em] opacity-85",
+                  isField
+                    ? `${color.border} ${color.text} rotate-1`
+                    : "border-fg-4 text-fg-4 -rotate-1",
+                )}
               >
-                No expeditions in record
-              </Text>
+                {isField ? "IN FIELD" : "COMPLETE"}
+              </span>
             </div>
-          )}
-        </div>
+          );
+        })}
+        {expeditions.length === 0 && (
+          <div className="py-4 font-mono text-[10.5px] text-fg-3">
+            No expeditions in record
+          </div>
+        )}
       </div>
 
-      {/* Operational readiness */}
-      <div className="rounded-lg border border-border p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <Text
-            variant="caption"
-            tone="tertiary"
-            className="font-mono text-2xs uppercase tracking-widest"
-          >
-            Readiness
-          </Text>
-          <Text className={cn("font-mono text-xs font-bold", readinessColor)}>
-            {readinessLabel}
-          </Text>
+      {/* ── Operational Readiness ───────────────── */}
+      <div className="mt-4 border-t-2 border-fg-2 pt-4">
+        <div className="mb-1.5 font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">
+          Operational Readiness
         </div>
-        <div className="mb-2 flex items-baseline gap-1.5">
-          <span className="font-mono text-2xl font-bold text-fg-1">
-            {Math.round(kpis.equipment.readyPct)}
+        <div className="mb-2.5 flex items-baseline gap-2">
+          <span className="font-sans text-[40px] font-bold leading-none text-ok">
+            {score}
           </span>
-          <span className="font-mono text-xs text-fg-3">/100</span>
+          <span className="font-mono text-xs text-fg-3">/ 100</span>
         </div>
-        <div className="flex gap-0.5">
+        <div className="flex gap-0.75">
           {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
               className={cn(
-                "h-2 flex-1 rounded-sm",
-                i < filledBlocks ? "bg-ok/60" : "bg-inset",
+                "h-3.5 flex-1 border border-fg-4",
+                i < filledBlocks ? "bg-ok/70" : "bg-transparent",
               )}
             />
           ))}
         </div>
       </div>
 
-      {/* Certified record block */}
-      <div className="rounded-lg border border-border p-3">
-        <Text
-          variant="caption"
-          tone="tertiary"
-          className="mb-3 block font-mono text-2xs uppercase tracking-widest"
-        >
-          Certified True Record
-        </Text>
-        <div className="border-t border-dashed border-border pt-3">
-          <Text className="block text-xs font-semibold">{operator.name}</Text>
-          <Text
-            variant="caption"
-            tone="tertiary"
-            className="mt-0.5 font-mono text-2xs"
-          >
-            {operator.hq}
-          </Text>
-          <Text
-            variant="caption"
-            tone="tertiary"
-            className="mt-2 block font-mono text-2xs uppercase tracking-wider"
-          >
-            {today}
-          </Text>
-        </div>
+      {/* ── Certified true record ───────────────── */}
+      <div className="mt-4 border-t border-border pt-4">
+        <p className="font-mono text-3xs italic text-fg-3">
+          Certified true record — {operator.hq}, Duty Officer, {today}
+        </p>
       </div>
     </div>
   );
