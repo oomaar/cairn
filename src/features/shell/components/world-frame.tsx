@@ -11,6 +11,9 @@ import { getExpedition } from "@/universe";
 interface WorldFrameProps {
   world: World;
   children: ReactNode;
+  /** Renders above the module tab bar — used by worlds that want a document
+   *  masthead sitting above their navigation (e.g. Record world). */
+  headerSlot?: ReactNode;
 }
 
 /**
@@ -19,9 +22,10 @@ interface WorldFrameProps {
  * module tab bar (real route links) and the expedition context strip; the
  * routed module page renders into the body.
  */
-export function WorldFrame({ world, children }: WorldFrameProps) {
+export function WorldFrame({ world, children, headerSlot }: WorldFrameProps) {
   const nav = useNavigation();
   const expedition = getExpedition(nav.focusedExpeditionId);
+  const isRecord = world.key === "record";
 
   return (
     <div
@@ -30,8 +34,11 @@ export function WorldFrame({ world, children }: WorldFrameProps) {
         "flex min-w-0 flex-1 flex-col overflow-hidden bg-app text-fg-1",
       )}
     >
-      {/* Module tabs + expedition context */}
-      <div className="flex h-12 flex-none items-stretch border-b border-border font-mono">
+      {/* Optional world masthead — rendered above module tabs */}
+      {headerSlot}
+
+      {/* Module tabs (+ expedition strip for non-record worlds) */}
+      <div className="flex h-10 flex-none items-stretch border-b border-border font-mono">
         <div
           className="flex"
           role="tablist"
@@ -58,10 +65,12 @@ export function WorldFrame({ world, children }: WorldFrameProps) {
           })}
         </div>
         <div className="flex flex-1 items-center" />
-        <div className="flex items-center gap-2.5 border-l border-border px-4 text-fg-2">
-          <Icon name="pin" size={14} className="text-accent-bright" />
-          <span className="text-sm">{expedition?.name ?? "—"}</span>
-        </div>
+        {!isRecord && (
+          <div className="flex items-center gap-2.5 border-l border-border px-4 text-fg-2">
+            <Icon name="pin" size={14} className="text-accent-bright" />
+            <span className="text-sm">{expedition?.name ?? "—"}</span>
+          </div>
+        )}
       </div>
 
       {/* Routed module content */}
