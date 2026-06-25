@@ -51,7 +51,8 @@ export const WORLDS: readonly World[] = [
       { key: "daybook", label: "Daybook" },
       { key: "incidents", label: "Incident Reports" },
       { key: "briefings", label: "Briefings" },
-      { key: "history", label: "Mission History" },
+      { key: "history", label: "Archive" },
+      { key: "metrics", label: "Metrics" },
     ],
   },
 ] as const;

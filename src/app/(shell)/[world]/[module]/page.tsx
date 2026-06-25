@@ -15,6 +15,7 @@ import {
   WeatherAlertsCenter,
   CommunicationsCenter,
 } from "@/features/operate";
+import { DaybookWorkspace, HistoryWorkspace, BriefingsWorkspace, IncidentsWorkspace, MetricsWorkspace } from "@/features/record";
 
 /** Pre-render every world/module route as static content. */
 export function generateStaticParams() {
@@ -35,6 +36,11 @@ const WORKSPACES: Record<string, () => ReactNode> = {
   "operate/risk": () => <RiskCenter />,
   "operate/equipment": () => <EquipmentTracking />,
   "operate/comms": () => <CommunicationsCenter />,
+  "record/daybook": () => <DaybookWorkspace />,
+  "record/history": () => <HistoryWorkspace />,
+  "record/briefings": () => <BriefingsWorkspace />,
+  "record/incidents": () => <IncidentsWorkspace />,
+  "record/metrics": () => <MetricsWorkspace />,
 };
 
 /** A module workspace. Validates the world+module, then renders the real
