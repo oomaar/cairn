@@ -1,6 +1,5 @@
 import { cn } from "@/lib/cn";
 import type { Expedition } from "@/universe";
-import { STATUS_DOT } from "../data/STATUS_DOT";
 
 interface ExpeditionListRowProps {
   expedition: Expedition;
@@ -8,35 +7,53 @@ interface ExpeditionListRowProps {
   onSelect: () => void;
 }
 
+const STAMP_CLASSES: Partial<Record<Expedition["status"], string>> = {
+  "in-field": "border-ok text-ok",
+  departing: "border-warn text-warn",
+  complete: "border-border text-fg-3",
+  planning: "border-border text-fg-3",
+};
+
 export function ExpeditionListRow({
   expedition,
   isSelected,
   onSelect,
 }: ExpeditionListRowProps) {
-  const dot = STATUS_DOT[expedition.status] ?? "bg-border";
+  const stampClasses =
+    STAMP_CLASSES[expedition.status] ?? "border-border text-fg-3";
 
   return (
     <button
       onClick={onSelect}
       className={cn(
-        "w-full border-b border-border px-5 py-3 text-left transition-colors sm:px-6",
-        isSelected ? "bg-raised" : "hover:bg-raised/50",
+        "w-full border-b border-border/50 px-6 py-4 text-left transition-colors hover:bg-raised/30",
+        isSelected && "bg-raised border-border",
       )}
     >
-      <div className="flex items-center gap-2.5">
-        <div className={cn("mt-px size-1.5 flex-none rounded-full", dot)} />
+      {/* Expedition name + status stamp */}
+      <div className="flex items-center justify-between gap-3 mb-1">
         <span
           className={cn(
-            "min-w-0 flex-1 truncate text-sm font-semibold leading-snug",
+            "min-w-0 flex-1 truncate text-base font-semibold leading-tight",
             isSelected ? "text-fg-1" : "text-fg-2",
           )}
         >
           {expedition.name}
         </span>
+        <span
+          className={cn(
+            "flex-none rounded-sm border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] opacity-75",
+            stampClasses,
+          )}
+        >
+          {expedition.statusLabel}
+        </span>
       </div>
-      <div className="mt-0.5 pl-4 font-mono text-[10.5px] text-fg-4">
+
+      {/* Meta line: region, distance, days */}
+      <div className="font-mono text-[10.5px] text-fg-3">
         {expedition.region} · {expedition.distanceKm} km · {expedition.dayTotal}
-        d
+        <span className="ml-0.5">days</span>
       </div>
     </button>
   );
