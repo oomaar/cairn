@@ -27,7 +27,7 @@ export function Spine({
   onOpenCommand,
 }: SpineProps) {
   return (
-    <aside className="z-30 flex w-20.5 flex-none flex-col items-center border-r border-spine-edge bg-spine py-3.5">
+    <aside className="fixed left-0 top-0 bottom-0 z-30 flex w-20.5 flex-col items-center border-r border-spine-edge bg-spine py-3.5">
       <div className={cn("mb-4.5", SPINE_ACCENT[world].text)} title="Cairn">
         <CairnMark size={30} className="text-current" />
       </div>

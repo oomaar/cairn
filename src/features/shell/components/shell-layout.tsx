@@ -27,7 +27,7 @@ function ShellChrome({ children }: { children: ReactNode }) {
         onRoleChange={setRole}
         onOpenCommand={openPalette}
       />
-      <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      <main className="ml-20.5 flex min-w-0 flex-1 flex-col">{children}</main>
     </div>
   );
 }
