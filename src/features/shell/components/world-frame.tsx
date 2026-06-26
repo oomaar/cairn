@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
+import { useSession } from "@/features/session";
+import type { Capability } from "@/features/session";
 import type { World } from "@/features/theme";
 import { getExpedition } from "@/universe";
 
@@ -24,8 +26,13 @@ interface WorldFrameProps {
  */
 export function WorldFrame({ world, children, headerSlot }: WorldFrameProps) {
   const nav = useNavigation();
+  const { can } = useSession();
   const expedition = getExpedition(nav.focusedExpeditionId);
   const isRecord = world.key === "record";
+
+  const visibleModules = world.modules.filter(
+    (m) => !m.requiredCapability || can(m.requiredCapability as Capability),
+  );
 
   return (
     <div
@@ -46,7 +53,7 @@ export function WorldFrame({ world, children, headerSlot }: WorldFrameProps) {
             role="tablist"
             aria-label={`${world.label} modules`}
           >
-            {world.modules.map((m) => {
+            {visibleModules.map((m) => {
               const on = m.key === nav.module;
               return (
                 <Link

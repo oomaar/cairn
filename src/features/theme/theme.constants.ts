@@ -19,7 +19,7 @@ export const WORLDS: readonly World[] = [
     modules: [
       { key: "route", label: "Route Planning" },
       { key: "expeditions", label: "Expeditions" },
-      { key: "builder", label: "New Expedition" },
+      { key: "builder", label: "New Expedition", requiredCapability: "expeditions:create" },
     ],
   },
   {

@@ -15,6 +15,9 @@ export interface WorldModule {
   readonly key: string;
   /** Human label shown in the module tab. */
   readonly label: string;
+  /** When set, the tab is hidden (and the route blocked) for roles that lack
+   *  this capability. Matches the Capability union from the session layer. */
+  readonly requiredCapability?: string;
 }
 
 /** A world definition: identity, the body class that activates its palette,
