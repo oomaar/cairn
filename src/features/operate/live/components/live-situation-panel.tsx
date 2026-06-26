@@ -208,13 +208,15 @@ export function LiveSituationPanel({
       </div>
 
       {/* Footer stats bar */}
-      <div className="flex flex-none border-t border-border">
+      <div className="flex flex-none flex-wrap border-t border-border sm:flex-nowrap">
         {footerStats.map(([label, value], i) => (
           <div
             key={label}
             className={cn(
-              "min-w-0 flex-1 px-3 py-2.5",
-              i > 0 && "border-l border-border",
+              "min-w-0 basis-1/2 px-3 py-2.5 sm:flex-1 sm:basis-auto",
+              i % 2 === 1 && "border-l border-border",
+              i >= 2 && "border-t border-border sm:border-t-0",
+              i > 0 && i % 2 === 0 && "sm:border-l sm:border-border",
             )}
           >
             <Text
