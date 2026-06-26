@@ -16,7 +16,6 @@ export type Capability =
   | "comms:broadcast"
   | "comms:send"
   | "incident:log"
-  | "logbook:write"
   | "checkin";
 
 const ALL_CAPABILITIES: readonly Capability[] = [
@@ -30,7 +29,6 @@ const ALL_CAPABILITIES: readonly Capability[] = [
   "comms:broadcast",
   "comms:send",
   "incident:log",
-  "logbook:write",
   "checkin",
 ];
 
@@ -45,7 +43,6 @@ export const ROLE_CAPABILITIES: Readonly<
     "operations:command",
     "comms:send",
     "incident:log",
-    "logbook:write",
     "checkin",
   ],
   participant: ["checkin"],

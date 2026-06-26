@@ -22,7 +22,7 @@ export function LiveOperations() {
         )
       : [];
 
-  const isParticipant = !can("expeditions:view-all");
+  const isParticipant = !can("operations:command");
 
   const [focusedId, setFocusedId] = useState(activeExpeditions[0]?.id ?? "");
   const [detailId, setDetailId] = useState<string | null>(null);
