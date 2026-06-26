@@ -1,8 +1,21 @@
-import { listExpeditions, getIncidents } from "@/universe";
+"use client";
+
+import {
+  listExpeditions,
+  getIncidents,
+  getExpeditionsForPerson,
+} from "@/universe";
+import { useSession } from "@/features/session";
 import { IncidentDocument } from "./incident-document";
 
 export function IncidentsWorkspace() {
-  const allIncidents = listExpeditions().flatMap((expedition) =>
+  const { can, currentUser } = useSession();
+
+  const expeditions = can("expeditions:view-all")
+    ? listExpeditions()
+    : getExpeditionsForPerson(currentUser?.id ?? "");
+
+  const allIncidents = expeditions.flatMap((expedition) =>
     getIncidents(expedition.id).map((incident) => ({ incident, expedition })),
   );
 
