@@ -67,7 +67,11 @@ export default async function ModulePage({
     const role = (await readDemoRole()) ?? "director";
     const caps = ROLE_CAPABILITIES[role] as readonly Capability[];
     if (!caps.includes(mod.requiredCapability as Capability)) {
-      redirect(`/${world.key}/${world.defaultModule}`);
+      // Redirect to the first module this role can actually access.
+      const fallback = world.modules.find(
+        (m) => !m.requiredCapability || caps.includes(m.requiredCapability as Capability),
+      );
+      redirect(`/${world.key}/${fallback?.key ?? world.defaultModule}`);
     }
   }
 

@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useCan } from "@/features/session";
 import { useWeatherAlerts } from "../hooks/use-weather-alerts";
 import { ALERT_RESPONSE_TYPES } from "../data/ALERT_RESPONSE_TYPES";
 import type { AlertResponseType } from "../types/weather-alert.types";
 import { WeatherAlertsHeader } from "./weather-alerts-header";
 
 export function WeatherAlertsCenter() {
-  const { displayedAlerts, acknowledgeAlert, respondToAlert } =
+  const canRespond = useCan("operations:command");
+  const { state, displayedAlerts, setFilter, setSortBy, acknowledgeAlert, respondToAlert } =
     useWeatherAlerts();
   const [expandedAlertId, setExpandedAlertId] = useState<string | null>(null);
   const [respondingAlertId, setRespondingAlertId] = useState<string | null>(
@@ -42,7 +44,7 @@ export function WeatherAlertsCenter() {
 
   return (
     <div className="h-full flex flex-col bg-surface">
-      <WeatherAlertsHeader />
+      <WeatherAlertsHeader state={state} setFilter={setFilter} setSortBy={setSortBy} />
 
       {/* Alerts List */}
       <div className="flex-1 overflow-y-auto p-6 space-y-3">
@@ -152,8 +154,8 @@ export function WeatherAlertsCenter() {
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  {alert.status === "active" && (
+                  {/* Action Buttons — command/lead only */}
+                  {canRespond && alert.status === "active" && (
                     <div className="flex gap-2 pt-2">
                       <button
                         onClick={() => acknowledgeAlert(alert.id)}
@@ -170,7 +172,8 @@ export function WeatherAlertsCenter() {
                     </div>
                   )}
 
-                  {(alert.status === "acknowledged" ||
+                  {canRespond &&
+                    (alert.status === "acknowledged" ||
                     alert.status === "active") &&
                     respondingAlertId === alert.id && (
                       <div className="bg-surface rounded border border-border p-3 space-y-2">
