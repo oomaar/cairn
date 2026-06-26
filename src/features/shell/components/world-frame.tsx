@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useNavigation } from "@/features/navigation";
+import { useSession } from "@/features/session";
+import type { Capability } from "@/features/session";
 import type { World } from "@/features/theme";
 import { getExpedition } from "@/universe";
 
@@ -24,8 +26,13 @@ interface WorldFrameProps {
  */
 export function WorldFrame({ world, children, headerSlot }: WorldFrameProps) {
   const nav = useNavigation();
+  const { can } = useSession();
   const expedition = getExpedition(nav.focusedExpeditionId);
   const isRecord = world.key === "record";
+
+  const visibleModules = world.modules.filter(
+    (m) => !m.requiredCapability || can(m.requiredCapability as Capability),
+  );
 
   return (
     <div
@@ -34,47 +41,50 @@ export function WorldFrame({ world, children, headerSlot }: WorldFrameProps) {
         "flex min-w-0 flex-1 flex-col overflow-hidden bg-app text-fg-1",
       )}
     >
-      {/* Optional world masthead — rendered above module tabs */}
-      {headerSlot}
+      {/* Sticky header (masthead + module tabs) — stays at top during scroll */}
+      <div className="sticky top-0 z-10 flex-none bg-app">
+        {/* Optional world masthead — rendered above module tabs */}
+        {headerSlot}
 
-      {/* Module tabs (+ expedition strip for non-record worlds) */}
-      <div className="flex h-10 flex-none items-stretch border-b border-border font-mono">
-        <div
-          className="flex"
-          role="tablist"
-          aria-label={`${world.label} modules`}
-        >
-          {world.modules.map((m) => {
-            const on = m.key === nav.module;
-            return (
-              <Link
-                key={m.key}
-                href={`/${world.key}/${m.key}`}
-                role="tab"
-                aria-selected={on}
-                className={cn(
-                  "flex items-center border-b-2 px-4.5 text-2xs font-semibold uppercase tracking-[0.06em] transition-colors duration-150 ease-standard",
-                  on
-                    ? "border-b-accent text-fg-1"
-                    : "border-b-transparent text-fg-3 hover:text-fg-2",
-                )}
-              >
-                {m.label}
-              </Link>
-            );
-          })}
-        </div>
-        <div className="flex flex-1 items-center" />
-        {!isRecord && (
-          <div className="flex items-center gap-2.5 border-l border-border px-4 text-fg-2">
-            <Icon name="pin" size={14} className="text-accent-bright" />
-            <span className="text-sm">{expedition?.name ?? "—"}</span>
+        {/* Module tabs (+ expedition strip for non-record worlds) */}
+        <div className="flex h-10 items-stretch border-b border-border font-mono">
+          <div
+            className="flex"
+            role="tablist"
+            aria-label={`${world.label} modules`}
+          >
+            {visibleModules.map((m) => {
+              const on = m.key === nav.module;
+              return (
+                <Link
+                  key={m.key}
+                  href={`/${world.key}/${m.key}`}
+                  role="tab"
+                  aria-selected={on}
+                  className={cn(
+                    "flex items-center border-b-2 px-4.5 text-2xs font-semibold uppercase tracking-[0.06em] transition-colors duration-150 ease-standard",
+                    on
+                      ? "border-b-accent text-fg-1"
+                      : "border-b-transparent text-fg-3 hover:text-fg-2",
+                  )}
+                >
+                  {m.label}
+                </Link>
+              );
+            })}
           </div>
-        )}
+          <div className="flex flex-1 items-center" />
+          {!isRecord && (
+            <div className="flex items-center gap-2.5 border-l border-border px-4 text-fg-2">
+              <Icon name="pin" size={14} className="text-accent-bright" />
+              <span className="text-sm">{expedition?.name ?? "—"}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Routed module content */}
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-app">
+      {/* Scrollable module content */}
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-app">
         {children}
       </div>
     </div>

@@ -1,12 +1,14 @@
 import { getComms, getPerson, listExpeditions } from "@/universe";
 import type { CommsEntry } from "../types/CommsEntry";
 
-export function buildComms(): {
+export function buildComms(allowedIds?: string[]): {
   entries: CommsEntry[];
   expeditionCodes: string[];
 } {
   const expeditions = listExpeditions().filter(
-    (e) => e.status === "in-field" || e.status === "planning",
+    (e) =>
+      (e.status === "in-field" || e.status === "planning") &&
+      (!allowedIds || allowedIds.includes(e.id)),
   );
 
   const entries: CommsEntry[] = [];

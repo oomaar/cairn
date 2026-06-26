@@ -1,13 +1,16 @@
 import { Dropdown, Text } from "@/components/ui";
-import { useWeatherAlerts } from "../hooks/use-weather-alerts";
+import type { WeatherAlertFilter, WeatherAlertsDashboardState } from "../types/weather-alert.types";
 
-export function WeatherAlertsHeader() {
-  const { state, setFilter, setSortBy } = useWeatherAlerts();
+interface WeatherAlertsHeaderProps {
+  state: WeatherAlertsDashboardState;
+  setFilter: (filter: WeatherAlertFilter) => void;
+  setSortBy: (sortBy: "severity" | "time" | "expeditionName") => void;
+}
 
+export function WeatherAlertsHeader({ state, setFilter, setSortBy }: WeatherAlertsHeaderProps) {
   const activeCounts = {
     active: state.allAlerts.filter((a) => a.status === "active").length,
-    acknowledged: state.allAlerts.filter((a) => a.status === "acknowledged")
-      .length,
+    acknowledged: state.allAlerts.filter((a) => a.status === "acknowledged").length,
     resolved: state.allAlerts.filter((a) => a.status === "resolved").length,
   };
 

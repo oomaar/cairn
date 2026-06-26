@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Text } from "@/components/ui";
 import { useNavigation } from "@/features/navigation";
-import { listExpeditions } from "@/universe";
+import { useSession } from "@/features/session";
+import { getExpeditionsForPerson, listExpeditions } from "@/universe";
 import { useExpeditionDrafts } from "../utils/expedition-drafts";
 import { ExpeditionSheet } from "./expedition-sheet";
 import { DraftDetail } from "./draft-expedition/draft-detail";
@@ -14,8 +15,14 @@ import { ExpeditionDetail } from "./expedition-detail/expedition-detail";
  *  Route Planning. */
 export function PlanExpeditions() {
   const nav = useNavigation();
-  const expeditions = listExpeditions();
+  const { can, currentUser } = useSession();
+  const expeditions = can("expeditions:view-all")
+    ? listExpeditions()
+    : currentUser
+      ? getExpeditionsForPerson(currentUser.id)
+      : [];
   const { drafts } = useExpeditionDrafts();
+  const visibleDrafts = can("expeditions:create") ? drafts : [];
   const [detailId, setDetailId] = useState<string | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
   const openDraft = drafts.find((d) => d.id === draftId);
@@ -42,7 +49,9 @@ export function PlanExpeditions() {
           tone="tertiary"
           className="uppercase tracking-[0.06em]"
         >
-          {expeditions.length + drafts.length} charts on file
+          {can("expeditions:view-all")
+            ? `${expeditions.length + visibleDrafts.length} charts on file`
+            : `${expeditions.length} assigned`}
         </Text>
       </div>
 
@@ -57,7 +66,7 @@ export function PlanExpeditions() {
               onOpen={() => setDetailId(expedition.id)}
             />
           ))}
-          {drafts.map((draft, i) => (
+          {visibleDrafts.map((draft, i) => (
             <DraftSheet
               key={draft.id}
               draft={draft}

@@ -1,9 +1,11 @@
 import { listExpeditions, getLogbook, getPerson } from "@/universe";
 import type { EnrichedLogEntry } from "../types/daybook.types";
 
-export function aggregateLogs(): EnrichedLogEntry[] {
+export function aggregateLogs(allowedIds?: string[]): EnrichedLogEntry[] {
   const expeditions = listExpeditions().filter(
-    (e) => e.status === "in-field" || e.status === "complete",
+    (e) =>
+      (e.status === "in-field" || e.status === "complete") &&
+      (!allowedIds || allowedIds.includes(e.id)),
   );
 
   const entries: EnrichedLogEntry[] = [];

@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { Text } from "@/components/ui";
 import { useNavigation } from "@/features/navigation";
 import { useCan, useSession } from "@/features/session";
+import { getExpeditionsForPerson } from "@/universe";
 import {
   buildAlternateRoute,
   buildRoutePlan,
@@ -260,10 +261,19 @@ function RoutePlanningInner({ plan }: { plan: RoutePlan }) {
  */
 export function RoutePlanningWorkspace() {
   const { focusedExpeditionId } = useNavigation();
-  const plan = useMemo(
-    () => buildRoutePlan(focusedExpeditionId),
-    [focusedExpeditionId],
-  );
+  const { can, currentUser } = useSession();
+
+  // When the role cannot view all expeditions, clamp the focused expedition to
+  // one the current user is actually assigned to.
+  const resolvedId = useMemo(() => {
+    if (can("expeditions:view-all") || !currentUser) return focusedExpeditionId;
+    const allowed = getExpeditionsForPerson(currentUser.id);
+    if (allowed.some((e) => e.id === focusedExpeditionId))
+      return focusedExpeditionId;
+    return allowed[0]?.id ?? focusedExpeditionId;
+  }, [focusedExpeditionId, can, currentUser]);
+
+  const plan = useMemo(() => buildRoutePlan(resolvedId), [resolvedId]);
 
   if (!plan) {
     return (

@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { WORLD_BY_KEY, WORLDS, type WorldKey } from "@/features/theme";
 import { ModulePlaceholder } from "@/features/shell";
+import { readDemoRole } from "@/features/session/fake-auth.server";
+import { ROLE_CAPABILITIES } from "@/features/session";
+import type { Capability } from "@/features/session";
 import {
   PlanBuilder,
   PlanExpeditions,
@@ -15,7 +18,13 @@ import {
   WeatherAlertsCenter,
   CommunicationsCenter,
 } from "@/features/operate";
-import { DaybookWorkspace, HistoryWorkspace, BriefingsWorkspace, IncidentsWorkspace, MetricsWorkspace } from "@/features/record";
+import {
+  DaybookWorkspace,
+  HistoryWorkspace,
+  BriefingsWorkspace,
+  IncidentsWorkspace,
+  MetricsWorkspace,
+} from "@/features/record";
 
 /** Pre-render every world/module route as static content. */
 export function generateStaticParams() {
@@ -52,6 +61,19 @@ export default async function ModulePage({
   const world = WORLD_BY_KEY[worldParam as WorldKey];
   const mod = world?.modules.find((m) => m.key === moduleParam);
   if (!world || !mod) notFound();
+
+  // Block direct URL access to capability-restricted modules.
+  if (mod.requiredCapability) {
+    const role = (await readDemoRole()) ?? "director";
+    const caps = ROLE_CAPABILITIES[role] as readonly Capability[];
+    if (!caps.includes(mod.requiredCapability as Capability)) {
+      // Redirect to the first module this role can actually access.
+      const fallback = world.modules.find(
+        (m) => !m.requiredCapability || caps.includes(m.requiredCapability as Capability),
+      );
+      redirect(`/${world.key}/${fallback?.key ?? world.defaultModule}`);
+    }
+  }
 
   const workspace = WORKSPACES[`${world.key}/${mod.key}`];
   return workspace ? (

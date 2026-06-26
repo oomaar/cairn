@@ -1,8 +1,17 @@
-import { listExpeditions } from "@/universe";
+"use client";
+
+import { listExpeditions, getExpeditionsForPerson } from "@/universe";
+import { useSession } from "@/features/session";
 import { BriefingDocument } from "./briefing-document";
 
 export function BriefingsWorkspace() {
-  const upcoming = listExpeditions().filter(
+  const { can, currentUser } = useSession();
+
+  const eligible = can("expeditions:view-all")
+    ? listExpeditions()
+    : getExpeditionsForPerson(currentUser?.id ?? "");
+
+  const upcoming = eligible.filter(
     (e) => e.status === "planning" || e.status === "departing",
   );
 

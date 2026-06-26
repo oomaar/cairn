@@ -2,11 +2,17 @@ import { cn } from "@/lib/cn";
 import { listExpeditions, computeKpis, getOperator } from "@/universe";
 import { EXPEDITION_COLORS } from "../data/EXPEDITION_COLORS";
 
-export function DaybookRegister() {
+interface DaybookRegisterProps {
+  allowedIds?: string[];
+}
+
+export function DaybookRegister({ allowedIds }: DaybookRegisterProps) {
   const operator = getOperator();
   const kpis = computeKpis();
   const expeditions = listExpeditions().filter(
-    (e) => e.status === "in-field" || e.status === "complete",
+    (e) =>
+      (e.status === "in-field" || e.status === "complete") &&
+      (!allowedIds || allowedIds.includes(e.id)),
   );
 
   const filledBlocks = Math.round((kpis.equipment.readyPct / 100) * 20);
