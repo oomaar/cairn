@@ -16,21 +16,28 @@ export function CommunicationsCenter() {
   const canSend = can("comms:send");
   const canBroadcast = can("comms:broadcast");
 
+  const allowedIds = can("expeditions:view-all")
+    ? undefined
+    : getExpeditionsForPerson(currentUser?.id ?? "").map((e) => e.id);
+
   // Participants default to their expedition's channel; others start on ALL.
   const defaultFilter = (() => {
-    if (can("expeditions:view-all") || !currentUser) return "ALL";
-    const myExpeditions = getExpeditionsForPerson(currentUser.id);
-    return myExpeditions[0]?.id.toUpperCase() ?? "ALL";
+    if (!allowedIds) return "ALL";
+    return allowedIds[0]?.toUpperCase() ?? "ALL";
   })();
 
   const [filter, setFilter] = useState<string>(defaultFilter);
-  const [{ entries, expeditionCodes }, setData] = useState(buildComms);
+  const [{ entries, expeditionCodes }, setData] = useState(() =>
+    buildComms(allowedIds),
+  );
   // Local messages sent this session — prepended to the feed.
   const [localEntries, setLocalEntries] = useState<CommsEntry[]>([]);
 
   useEffect(() => {
-    const id = setInterval(() => setData(buildComms()), 5000);
+    const id = setInterval(() => setData(buildComms(allowedIds)), 5000);
     return () => clearInterval(id);
+    // allowedIds is derived from session — stable for the component lifetime
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const allEntries = [...localEntries, ...entries];
@@ -76,7 +83,11 @@ export function CommunicationsCenter() {
           ))}
           <div className="ml-auto flex items-center gap-1.5">
             <div className="size-1.5 animate-pulse rounded-full bg-accent" />
-            <Text variant="caption" tone="tertiary" className="font-mono text-2xs">
+            <Text
+              variant="caption"
+              tone="tertiary"
+              className="font-mono text-2xs"
+            >
               LIVE
             </Text>
           </div>
@@ -116,7 +127,11 @@ export function CommunicationsCenter() {
                     <Text className="block text-sm font-semibold leading-none">
                       {entry.senderName}
                     </Text>
-                    <Text variant="caption" tone="tertiary" className="mt-0.5 font-mono text-2xs">
+                    <Text
+                      variant="caption"
+                      tone="tertiary"
+                      className="mt-0.5 font-mono text-2xs"
+                    >
                       {entry.time}
                     </Text>
                   </div>
@@ -137,7 +152,8 @@ export function CommunicationsCenter() {
                   tone="secondary"
                   className={cn(
                     "block text-sm leading-relaxed",
-                    entry.senderInitials === "•" && "font-mono text-xs text-fg-3",
+                    entry.senderInitials === "•" &&
+                      "font-mono text-xs text-fg-3",
                   )}
                 >
                   {entry.text}
