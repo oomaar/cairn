@@ -32,7 +32,7 @@ export function HistoryExpeditionList({
   });
 
   return (
-    <div className="flex min-h-0 flex-col border-r-2 border-fg-1">
+    <div className="flex h-full flex-col border-r-2 border-fg-1">
       {/* Header area — minimal */}
       <div className="flex-none border-b border-fg-2 px-6 py-4">
         <div className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3 mb-3">
