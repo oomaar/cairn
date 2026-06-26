@@ -19,7 +19,11 @@ export const WORLDS: readonly World[] = [
     modules: [
       { key: "route", label: "Route Planning" },
       { key: "expeditions", label: "Expeditions" },
-      { key: "builder", label: "New Expedition", requiredCapability: "expeditions:create" },
+      {
+        key: "builder",
+        label: "New Expedition",
+        requiredCapability: "expeditions:create",
+      },
     ],
   },
   {
@@ -31,11 +35,19 @@ export const WORLDS: readonly World[] = [
     spineAccent: "var(--spine-operate)",
     defaultModule: "command",
     modules: [
-      { key: "command", label: "Command", requiredCapability: "operations:command" },
+      {
+        key: "command",
+        label: "Command",
+        requiredCapability: "operations:command",
+      },
       { key: "live", label: "Live" },
       { key: "weather", label: "Weather" },
       { key: "risk", label: "Risk", requiredCapability: "risk:manage" },
-      { key: "equipment", label: "Equipment", requiredCapability: "equipment:manage" },
+      {
+        key: "equipment",
+        label: "Equipment",
+        requiredCapability: "equipment:manage",
+      },
       { key: "comms", label: "Comms" },
     ],
   },
@@ -52,7 +64,11 @@ export const WORLDS: readonly World[] = [
       { key: "incidents", label: "Incident Reports" },
       { key: "briefings", label: "Briefings" },
       { key: "history", label: "Archive" },
-      { key: "metrics", label: "Metrics" },
+      {
+        key: "metrics",
+        label: "Metrics",
+        requiredCapability: "expeditions:view-all",
+      },
     ],
   },
 ] as const;
