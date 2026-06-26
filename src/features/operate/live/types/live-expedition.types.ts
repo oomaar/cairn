@@ -1,4 +1,5 @@
 import type { CheckpointType, WeatherAlert } from "@/universe";
+import { STATUS_OPTIONS } from "../data/STATUS_OPTIONS";
 
 export interface LiveCheckpoint {
   id: string;
@@ -102,3 +103,13 @@ export interface ExpeditionUpdate {
 }
 
 export type CellVariant = "danger" | "warn" | "ok" | "inactive";
+
+export type CheckinStatus = (typeof STATUS_OPTIONS)[number]["value"];
+
+export interface CheckinRecord {
+  checkpointId: string;
+  checkpointName: string;
+  status: CheckinStatus;
+  note: string;
+  time: string;
+}
