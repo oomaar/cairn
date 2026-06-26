@@ -21,6 +21,21 @@ export const metadata: Metadata = {
   description:
     "Plan, operate, and document real expeditions through a single operations platform.",
   applicationName: "Cairn",
+  metadataBase: new URL("https://cairn-expedition.vercel.app"),
+  openGraph: {
+    title: "Cairn — Expedition Operations",
+    description:
+      "Plan, operate, and document real expeditions through a single operations platform.",
+    url: "https://cairn-expedition.vercel.app",
+    siteName: "Cairn",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cairn — Expedition Operations",
+    description:
+      "Plan, operate, and document real expeditions through a single operations platform.",
+  },
 };
 
 export default function RootLayout({
