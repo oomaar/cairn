@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Icon, Text } from "@/components/ui";
 import type { IconName } from "@/components/ui/icon";
 import { cn } from "@/lib/cn";
 import { getLogbook, getComms } from "@/universe";
+import { getLocalCheckins, subscribeCheckins } from "../../store/checkin-store";
 
 interface EventEntry {
   id: string;
@@ -69,7 +71,11 @@ interface LiveExpeditionDetailExpeditionEventsProps {
 export function LiveExpeditionDetailExpeditionEvents({
   expeditionId,
 }: LiveExpeditionDetailExpeditionEventsProps) {
-  const logs = getLogbook(expeditionId);
+  // Re-render whenever a participant submits a new check-in.
+  const [, setTick] = useState(0);
+  useEffect(() => subscribeCheckins(() => setTick((n) => n + 1)), []);
+
+  const logs = [...getLogbook(expeditionId), ...getLocalCheckins(expeditionId)];
   const comms = getComms(expeditionId);
 
   const entries: EventEntry[] = [
