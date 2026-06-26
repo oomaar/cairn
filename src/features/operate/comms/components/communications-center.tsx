@@ -3,32 +3,60 @@
 import { useEffect, useState } from "react";
 import { Icon, Text } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useSession } from "@/features/session";
+import { getExpeditionsForPerson } from "@/universe";
 import { buildComms } from "../utils/buildComms";
 import { SENDER_BG } from "../data/SENDER_BG";
+import { CommsComposer } from "./comms-composer";
+import { CommsBroadcast } from "./comms-broadcast";
+import type { CommsEntry } from "../types/CommsEntry";
 
 export function CommunicationsCenter() {
-  const [filter, setFilter] = useState<string>("ALL");
+  const { can, currentUser } = useSession();
+  const canSend = can("comms:send");
+  const canBroadcast = can("comms:broadcast");
+
+  // Participants default to their expedition's channel; others start on ALL.
+  const defaultFilter = (() => {
+    if (can("expeditions:view-all") || !currentUser) return "ALL";
+    const myExpeditions = getExpeditionsForPerson(currentUser.id);
+    return myExpeditions[0]?.id.toUpperCase() ?? "ALL";
+  })();
+
+  const [filter, setFilter] = useState<string>(defaultFilter);
   const [{ entries, expeditionCodes }, setData] = useState(buildComms);
+  // Local messages sent this session — prepended to the feed.
+  const [localEntries, setLocalEntries] = useState<CommsEntry[]>([]);
 
   useEffect(() => {
     const id = setInterval(() => setData(buildComms()), 5000);
     return () => clearInterval(id);
   }, []);
 
+  const allEntries = [...localEntries, ...entries];
   const visible =
     filter === "ALL"
-      ? entries
-      : entries.filter((e) => e.expeditionCode === filter);
+      ? allEntries
+      : allEntries.filter((e) => e.expeditionCode === filter);
+
+  const handleSend = (entry: CommsEntry) => {
+    setLocalEntries((prev) => [entry, ...prev]);
+    setFilter(entry.expeditionCode);
+  };
+
+  const senderInitials = currentUser?.initials ?? "?";
+  const senderName = currentUser?.name ?? "Unknown";
+  const senderTone = currentUser?.tone ?? "slate";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Filter bar */}
       <div className="flex-none border-b border-border px-5 py-3">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <Text
             variant="caption"
             tone="tertiary"
-            className="font-mono text-2xs uppercase tracking-widest mr-1"
+            className="mr-1 font-mono text-2xs uppercase tracking-widest"
           >
             Channel
           </Text>
@@ -47,12 +75,8 @@ export function CommunicationsCenter() {
             </button>
           ))}
           <div className="ml-auto flex items-center gap-1.5">
-            <div className="size-1.5 rounded-full bg-accent animate-pulse" />
-            <Text
-              variant="caption"
-              tone="tertiary"
-              className="font-mono text-2xs"
-            >
+            <div className="size-1.5 animate-pulse rounded-full bg-accent" />
+            <Text variant="caption" tone="tertiary" className="font-mono text-2xs">
               LIVE
             </Text>
           </div>
@@ -79,9 +103,7 @@ export function CommunicationsCenter() {
                     : "border-border hover:border-border-strong",
                 )}
               >
-                {/* Header row */}
                 <div className="mb-2.5 flex items-center gap-2.5">
-                  {/* Sender badge */}
                   <div
                     className={cn(
                       "flex size-7 flex-none items-center justify-center rounded-full font-mono text-2xs font-bold",
@@ -90,22 +112,14 @@ export function CommunicationsCenter() {
                   >
                     {entry.senderInitials}
                   </div>
-
-                  {/* Sender name + time */}
                   <div className="min-w-0 flex-1">
                     <Text className="block text-sm font-semibold leading-none">
                       {entry.senderName}
                     </Text>
-                    <Text
-                      variant="caption"
-                      tone="tertiary"
-                      className="mt-0.5 font-mono text-2xs"
-                    >
+                    <Text variant="caption" tone="tertiary" className="mt-0.5 font-mono text-2xs">
                       {entry.time}
                     </Text>
                   </div>
-
-                  {/* Expedition + kind badges */}
                   <div className="flex items-center gap-1.5">
                     <span className="rounded border border-border px-1.5 py-0.5 font-mono text-2xs text-fg-3">
                       {entry.expeditionCode}
@@ -118,15 +132,12 @@ export function CommunicationsCenter() {
                     )}
                   </div>
                 </div>
-
-                {/* Message text */}
                 <Text
                   variant="caption"
                   tone="secondary"
                   className={cn(
                     "block text-sm leading-relaxed",
-                    entry.senderInitials === "•" &&
-                      "font-mono text-xs text-fg-3",
+                    entry.senderInitials === "•" && "font-mono text-xs text-fg-3",
                   )}
                 >
                   {entry.text}
@@ -136,6 +147,27 @@ export function CommunicationsCenter() {
           </div>
         )}
       </div>
+
+      {/* Message composer — lead + director */}
+      {canSend && (
+        <CommsComposer
+          expeditionCodes={expeditionCodes}
+          activeChannel={filter}
+          senderInitials={senderInitials}
+          senderName={senderName}
+          senderTone={senderTone}
+          onSend={handleSend}
+        />
+      )}
+
+      {/* Org broadcast — director only */}
+      {canBroadcast && (
+        <CommsBroadcast
+          senderInitials={senderInitials}
+          senderName={senderName}
+          onBroadcast={handleSend}
+        />
+      )}
     </div>
   );
 }
