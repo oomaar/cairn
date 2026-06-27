@@ -25,7 +25,7 @@ export function RoutePlanningRight({
   updateCheckpoint,
 }: RoutePlanningRightProps) {
   return (
-    <aside className="order-3 flex w-full flex-none flex-col border-t border-border bg-surface lg:w-72 lg:border-l lg:border-t-0 mb-">
+    <aside className="order-3 flex w-full flex-none flex-col border-t border-border bg-surface lg:w-72 lg:border-l lg:border-t-0">
       <CheckpointList
         stations={stations}
         selectedId={selected.id}

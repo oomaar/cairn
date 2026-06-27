@@ -49,7 +49,7 @@ export function MetricsWorkspace() {
       <div className="pointer-events-none absolute inset-y-0 left-13.5 z-10 w-[1.5px] bg-(--record-margin) opacity-60" />
 
       <div className="h-full overflow-y-auto">
-        <div className="px-5 py-5 sm:px-19 sm:pr-9">
+        <div className="px-5 py-5 sm:px-9 lg:px-19 lg:pr-9">
           {/* Sub-header */}
           <div className="mb-6 flex items-baseline gap-3 border-b-2 border-fg-2 pb-4">
             <span className="font-sans text-base font-bold tracking-tight text-fg-1">
@@ -60,9 +60,9 @@ export function MetricsWorkspace() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-4">
             <SectionHeader>Operations</SectionHeader>
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4 grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 sm:col-span-3 sm:grid-cols-3 sm:gap-x-10 lg:col-span-4 lg:grid-cols-4">
               <MetricBlock label="Total expeditions" value={total} />
               <MetricBlock
                 label="Currently in field"
@@ -82,7 +82,7 @@ export function MetricsWorkspace() {
             </div>
 
             <SectionHeader>Distance & terrain</SectionHeader>
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4 grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 sm:col-span-3 sm:grid-cols-3 sm:gap-x-10 lg:col-span-4 lg:grid-cols-4">
               <MetricBlock
                 label="Total distance planned"
                 value={totalKm.toLocaleString()}
@@ -103,7 +103,7 @@ export function MetricsWorkspace() {
             </div>
 
             <SectionHeader>Participants</SectionHeader>
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4 grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 sm:col-span-3 sm:grid-cols-3 sm:gap-x-10 lg:col-span-4 lg:grid-cols-4">
               <MetricBlock
                 label="Total participants"
                 value={totalPax}
@@ -113,7 +113,7 @@ export function MetricsWorkspace() {
             </div>
 
             <SectionHeader>Grade distribution</SectionHeader>
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4 grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 sm:col-span-3 sm:grid-cols-3 sm:gap-x-10 lg:col-span-4 lg:grid-cols-4">
               <MetricBlock
                 label="Moderate"
                 value={gradeCount.moderate}
@@ -132,7 +132,7 @@ export function MetricsWorkspace() {
             </div>
 
             <SectionHeader>Incident record</SectionHeader>
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4 grid grid-cols-2 gap-x-10 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-6 sm:col-span-3 sm:grid-cols-3 sm:gap-x-10 lg:col-span-4 lg:grid-cols-4">
               <MetricBlock
                 label="Incidents filed"
                 value={allIncidents.length}
